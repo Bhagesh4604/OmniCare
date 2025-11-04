@@ -1,0 +1,50 @@
+**Step-by-Step Guide to Run the Project:**
+
+This guide assumes that you have already copied the project to a new location.
+
+**Prerequisites:**
+
+*   **Node.js and npm:** Make sure you have Node.js and npm installed on your machine. You can download them from [https://nodejs.org/](https://nodejs.org/).
+*   **Android Studio:** Make sure you have Android Studio installed on your machine. You can download it from [https://developer.android.com/studio](https://developer.android.com/studio).
+*   **Java Development Kit (JDK):** Make sure you have a JDK installed on your machine. You can download it from [https://www.oracle.com/java/technologies/downloads/](https://www.oracle.com/java/technologies/downloads/).
+
+**Steps:**
+
+1.  **Open a terminal** in the root directory of the project.
+
+2.  **Install Node Modules:** Run the following command to install the required node modules:
+    ```
+    npm install
+    ```
+
+3.  **Update Environment Variables:**
+    *   Open the `.env` file in the root directory of the project.
+    *   Review the values of the environment variables and update them if necessary.
+    *   Specifically, make sure that the database credentials (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_DATABASE`) and the API keys (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `VITE_GOOGLE_CLIENT_ID`) are correct.
+
+4.  **Start the Backend Server:** Run the following command to start the backend server:
+    ```
+    npm run server
+    ```
+    You should see the message "Server is running on port 8080".
+
+5.  **Build the Frontend App:** Open a **new terminal** in the root directory of the project and run the following command to build the frontend app:
+    ```
+    npm run build
+    ```
+    This will create a `dist` directory with the built frontend assets.
+
+6.  **Sync with Capacitor:** Run the following command to sync the web assets with the Android project:
+    ```
+    npx cap sync
+    ```
+
+7.  **Open in Android Studio:** Run the following command to open the Android project in Android Studio:
+    ```
+    npx cap open android
+    ```
+
+8.  **Run on Android:**
+    *   In Android Studio, wait for the project to sync.
+    *   Connect your Android device to your computer or start an Android emulator.
+    *   Click the "Run" button (the green triangle) in the Android Studio toolbar to build and run the app on your device or emulator.

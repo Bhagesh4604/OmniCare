@@ -1,0 +1,89 @@
+**Hospital Management System App Features (Detailed):**
+
+**Core Modules:**
+
+*   **Dashboard:**
+    *   Displays key metrics like total patients, appointments, and revenue.
+    *   Shows a list of today's appointments.
+    *   Provides quick access to other modules.
+
+*   **Patient Management:**
+    *   Add, view, edit, and delete patient records.
+    *   Search for patients by name or ID.
+    *   View patient details, including personal information, medical history, and appointments.
+
+*   **Employee Management:**
+    *   Add, view, edit, and delete employee records.
+    *   Search for employees by name or ID.
+    *   Assign roles to employees (admin, doctor, etc.).
+
+*   **Appointments:**
+    *   Book appointments for patients with specific doctors.
+    *   View a list of all appointments.
+    *   Filter appointments by date, doctor, or patient.
+    *   Update the status of appointments (scheduled, completed, canceled).
+
+*   **Medical Records:**
+    *   Create and manage patient medical records.
+    *   Record diagnosis, treatment, and prescriptions.
+    *   View a patient's complete medical history.
+
+*   **Pharmacy Management:**
+    *   Manage the hospital's pharmacy.
+    *   Add, view, edit, and delete medicines.
+    *   Manage medicine categories.
+    *   Track medicine stock levels.
+    *   Receive low stock alerts via SMS.
+    *   Dispense medicines for prescriptions.
+
+*   **Billing & Accounting:**
+    *   Generate bills for patients.
+    *   Track payments and outstanding balances.
+    *   View a list of all transactions.
+    *   Manage the hospital's finances.
+
+**Patient Portal:**
+
+*   **Patient Dashboard:**
+    *   Provides patients with an overview of their upcoming appointments, recent medical records, and outstanding bills.
+    *   Quick access to other portal features.
+
+*   **Book Appointments:**
+    *   Allows patients to book appointments with doctors.
+    *   View a list of available doctors and their schedules.
+
+*   **View Medical Records:**
+    *   Allows patients to view their own medical records, including diagnosis, treatment, and prescriptions.
+
+*   **View Billing Information:**
+    *   Allows patients to view their own billing history, including invoices and payment status.
+
+*   **Patient Profile:**
+    *   Allows patients to view and edit their own profile information, including personal details and contact information.
+
+**Authentication:**
+
+*   **Staff Login:**
+    *   Secure login for staff (admins and doctors).
+*   **Patient Login:**
+    *   Secure login for patients to access the patient portal.
+*   **Patient Registration:**
+    *   Allows new patients to create an account.
+    *   Strict email validation to ensure only valid email addresses are used.
+*   **Forgot Password:**
+    *   Allows patients to reset their password via a link sent to their email.
+*   **Social Login (Google):**
+    *   Allows patients to log in using their Google account.
+
+**Other Features:**
+
+*   **Dark Mode:**
+    *   The app has a dark mode theme for a better user experience in low-light environments.
+*   **Responsive Design:**
+    *   The app is designed to be responsive and work on different screen sizes, from mobile phones to desktops.
+*   **SMS Notifications:**
+    *   The app sends SMS notifications for important events, such as:
+        *   Appointment bookings and confirmations.
+        *   Low stock alerts for the pharmacy.
+*   **Android App:**
+    *   The app is packaged as a native Android app using Capacitor, allowing it to be installed on Android devices.

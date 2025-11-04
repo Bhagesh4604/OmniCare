@@ -1,0 +1,1 @@
+require('./server/db.cjs').executeQuery('SELECT * FROM patients LIMIT 1', [], (err, results) => { if (err) { console.error(err); return; } console.log(results); });
