@@ -36,7 +36,7 @@ This guide assumes that you have already copied the project to a new location.
 
 6.  **Sync with Capacitor:** Run the following command to sync the web assets with the Android project:
     ```
-    npx cap sync
+    npx cap sync android
     ```
 
 7.  **Open in Android Studio:** Run the following command to open the Android project in Android Studio:

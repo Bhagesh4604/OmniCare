@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, HeartPulse } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import { SocialLogin } from '@capgo/capacitor-social-login';
+
 import apiUrl from '@/config/api';
 
 export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
@@ -11,44 +11,7 @@ export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    SocialLogin.initialize({
-      google: {
-        webClientId: '306870921505-nko2s0nroigmi8h0q6njusqacpiif7ul.apps.googleusercontent.com',
-      },
-    });
-  }, []);
 
-  // Google Login Handler
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await SocialLogin.login({
-        provider: 'google',
-        options: {
-          scopes: ['profile', 'email'],
-        },
-      });
-
-      if (result.accessToken) {
-        const res = await fetch(apiUrl('/api/auth/patient/google-login'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: result.idToken }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          onLogin(data.patient);
-        } else {
-          setError(data.message || 'Google login failed.');
-        }
-      } else {
-        setError('Google login cancelled or failed.');
-      }
-    } catch (error) {
-      console.error('Google login error', error);
-      setError('Failed to connect to the server for Google login.');
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -172,15 +135,7 @@ export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </motion.div>
-          <motion.div variants={itemVariants}>
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              className="w-full px-4 py-3 font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-red-500 disabled:bg-gray-600 disabled:cursor-not-allowed"
-            >
-              Sign In with Google
-            </button>
-          </motion.div>
+
           <motion.div variants={itemVariants} className="text-center">
             <p className="text-base text-gray-400">
               <button type="button" onClick={() => setAuthMode('forgot_password')} className="font-medium text-blue-400 hover:underline">
