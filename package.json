@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "node server/index.cjs"
+    "server": "node server/index.cjs",
+    "prebuild": "npm cache clean --force"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
@@ -34,7 +35,8 @@
     "twilio": "^5.10.2",
     "ws": "^8.18.3",
     "deep-email-validator": "^0.1.21",
-    "nodemailer": "^6.9.14"
+    "nodemailer": "^6.9.14",
+    "google-auth-library": "^10.5.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
