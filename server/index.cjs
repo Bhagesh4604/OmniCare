@@ -20,26 +20,18 @@ wss.on('connection', (ws) => {
   });
 });
 
-const PORT = 8080;
+// --- CHANGE 1: Use Render's environment variable for PORT ---
+const PORT = process.env.PORT || 8080;
 
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://192.168.1.107:5173']
-}));
-
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
+app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // API Routes
 app.use('/api/auth', require('./auth.cjs'));
 app.use('/api/auth/patient', require('./auth_patient.cjs'));
-app.use('/api/auth/staff', require('./auth_staff.cjs'));
 app.use('/api/dashboard', require('./dashboard.cjs'));
 app.use('/api/patients', require('./patients.cjs'));
-
 app.use('/api/immunizations', require('./immunizations.cjs'));
 app.use('/api/medications', require('./medications.cjs'));
 app.use('/api/portal', require('./portal.cjs'));
@@ -65,6 +57,7 @@ app.use('/api/triage', require('./triage.cjs'));
 app.use('/api/beds', require('./beds.cjs'));
 console.log("✅ '/api/beds' route registered successfully.");
 
-server.listen(PORT, () => {
+// --- CHANGE 2: Listen on '0.0.0.0' for Render ---
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
