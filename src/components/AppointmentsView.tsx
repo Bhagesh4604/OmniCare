@@ -115,7 +115,7 @@ export default function AppointmentsView({ user }) {
     }
   };
 
-  const filteredAppointments = useMemo(() => appointments.filter(app => {
+  const filteredAppointments = useMemo(() => appointments.filter(app => app.appointmentDate).filter(app => {
     const appDate = new Date(app.appointmentDate);
     const now = new Date();
     if (view === 'upcoming') {
@@ -146,8 +146,8 @@ export default function AppointmentsView({ user }) {
       
       <motion.div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants}><StatCard title="Total Appointments" value={appointments.length} icon={Calendar} color="text-blue-400"/></motion.div>
-          <motion.div variants={itemVariants}><StatCard title="Upcoming Today" value={appointments.filter(a => new Date(a.appointmentDate).toDateString() === new Date().toDateString() && new Date(a.appointmentDate) >= new Date()).length} icon={Clock} color="text-yellow-400"/></motion.div>
-          <motion.div variants={itemVariants}><StatCard title="Completed This Week" value={appointments.filter(a => a.status === 'completed' && new Date(a.appointmentDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length} icon={CheckCircle} color="text-green-400"/></motion.div>
+          <motion.div variants={itemVariants}><StatCard title="Upcoming Today" value={appointments.filter(a => a.appointmentDate && new Date(a.appointmentDate).toDateString() === new Date().toDateString() && new Date(a.appointmentDate) >= new Date()).length} icon={Clock} color="text-yellow-400"/></motion.div>
+          <motion.div variants={itemVariants}><StatCard title="Completed This Week" value={appointments.filter(a => a.appointmentDate && a.status === 'completed' && new Date(a.appointmentDate) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length} icon={CheckCircle} color="text-green-400"/></motion.div>
       </motion.div>
       
       <div className="bg-[#1C1C1E] rounded-2xl border border-gray-800 p-6">
@@ -172,7 +172,7 @@ export default function AppointmentsView({ user }) {
                                     <p className="font-bold text-white">{app.patientName}</p>
                                     <p className="text-sm text-gray-400">
                                         {isAdmin && <span className="flex items-center"><User size={12} className="mr-1"/>Dr. {app.doctorName}</span>}
-                                        {app.departmentName} - <span className="text-xs">{new Date(app.appointmentDate).toLocaleString()}</span>
+                                        {app.departmentName} - <span className="text-xs">{app.appointmentDate ? new Date(app.appointmentDate).toLocaleString() : 'No date'}</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4">

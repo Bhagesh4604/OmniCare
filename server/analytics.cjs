@@ -54,7 +54,7 @@ router.get('/summary', (req, res) => {
         })
         .catch(err => {
             console.error("Analytics summary query error:", err);
-            res.status(500).json({ success: false, message: 'Internal server error' });
+            res.status(500).json({ success: false, message: 'Internal server error', error: err.message || err });
         });
 });
 

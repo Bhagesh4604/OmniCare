@@ -86,10 +86,14 @@ const AnalyticsDashboard: React.FC = () => {
       try {
         const response = await fetch(apiUrl('/api/analytics/summary'));
         const data = await response.json();
+        console.log("Analytics data from backend:", JSON.stringify(data));
 
         // Process chart data
-        const admissions = padData(data.admissionsLast7Days, 7).map(d => ({ key: new Date(d.key), data: d.data }));
-        const appointments = padData(data.appointmentsLast7Days, 7).map(d => ({ key: new Date(d.key), data: d.data }));
+        const admissionsData = Array.isArray(data.admissionsLast7Days) ? data.admissionsLast7Days : [];
+        const appointmentsData = Array.isArray(data.appointmentsLast7Days) ? data.appointmentsLast7Days : [];
+
+        const admissions = padData(admissionsData, 7).map(d => ({ key: new Date(d.key), data: d.data }));
+        const appointments = padData(appointmentsData, 7).map(d => ({ key: new Date(d.key), data: d.data }));
         
         setChartData([
           { key: 'Admissions', data: admissions },
@@ -98,12 +102,12 @@ const AnalyticsDashboard: React.FC = () => {
 
         // Process stats
         setStats({
-            newPatients: data.newPatientsToday[0]?.count || 0,
-            todaysAppointments: data.appointmentsToday[0]?.count || 0,
-            bedOccupancy: data.bedOccupancy[0] ? (data.bedOccupancy[0].occupied / data.bedOccupancy[0].total) * 100 : 0,
+            newPatients: (data.newPatientsToday && data.newPatientsToday[0]?.count) || 0,
+            todaysAppointments: (data.appointmentsToday && data.appointmentsToday[0]?.count) || 0,
+            bedOccupancy: (data.bedOccupancy && data.bedOccupancy[0] && data.bedOccupancy[0].total > 0) ? (data.bedOccupancy[0].occupied / data.bedOccupancy[0].total) * 100 : 0,
             avgWaitTime: 25, // Mock data
-            totalRevenue: data.totalRevenue[0]?.total || 0,
-            revenueToday: data.revenueToday[0]?.total || 0,
+            totalRevenue: (data.totalRevenue && data.totalRevenue[0]?.total) || 0,
+            revenueToday: (data.revenueToday && data.revenueToday[0]?.total) || 0,
         });
 
       } catch (error) {
