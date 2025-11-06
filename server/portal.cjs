@@ -94,6 +94,7 @@ router.put('/my-appointments/:appointmentId/cancel', (req, res) => {
 
 // Book an appointment
 router.post('/book-appointment', async (req, res) => {
+    console.log("Received request to book appointment:", req.body);
     const { patientId, doctorId, appointmentDate, notes, consultationType } = req.body;
     
     if (new Date(appointmentDate) < new Date()) {
@@ -102,6 +103,7 @@ router.post('/book-appointment', async (req, res) => {
 
     try {
         // 1. Insert the appointment
+        console.log("Step 1: Inserting appointment into database...");
         const result = await new Promise((resolve, reject) => {
             const sql = "INSERT INTO appointments (patientId, doctorId, appointmentDate, notes, status, consultationType) VALUES (?, ?, ?, ?, 'scheduled', ?)";
             executeQuery(sql, [patientId, doctorId, appointmentDate, notes, consultationType], (err, result) => {
@@ -109,10 +111,12 @@ router.post('/book-appointment', async (req, res) => {
                 resolve(result);
             });
         });
+        console.log("Step 1a: Appointment inserted successfully. ID:", result.insertId);
 
         const appointmentId = result.insertId;
 
         // 2. Get details for SMS notification
+        console.log("Step 2: Fetching patient and doctor details for notification...");
         const details = await new Promise((resolve, reject) => {
             const sql = `
                 SELECT 
@@ -129,6 +133,7 @@ router.post('/book-appointment', async (req, res) => {
                 resolve(results[0]);
             });
         });
+        console.log("Step 2a: Details fetched successfully:", details);
 
         if (details && details.phone) {
             const apptDate = new Date(appointmentDate);
@@ -138,6 +143,7 @@ router.post('/book-appointment', async (req, res) => {
 
             // 3. Handle virtual consultation specific logic
             if (consultationType === 'virtual') {
+                console.log("Step 3: Creating virtual consultation room...");
                 const roomUrl = generateRoomUrl(appointmentId);
                 const startTime = new Date(appointmentDate).toISOString();
                 const endTime = new Date(new Date(appointmentDate).getTime() + 30 * 60 * 1000).toISOString(); // 30 min duration
@@ -149,11 +155,13 @@ router.post('/book-appointment', async (req, res) => {
                         resolve(result);
                     });
                 });
+                console.log("Step 3a: Virtual room created successfully.");
 
                 message += ` Join here: ${roomUrl}`;
             }
 
             // 4. Send the SMS
+            console.log("Step 4: Preparing to send SMS notification...");
             await sendSms(details.phone, message);
             console.log(`SMS notification sent to ${details.phone}`);
         } else {
