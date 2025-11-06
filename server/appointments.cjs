@@ -97,7 +97,6 @@ router.get('/today', (req, res) => {
     });
 });
 
-
 const generateRoomUrl = (appointmentId) => {
     const roomName = `HMSConsultation-${appointmentId}-${Date.now()}`;
     return `https://meet.jit.si/${roomName}`;
@@ -105,6 +104,8 @@ const generateRoomUrl = (appointmentId) => {
 
 router.post('/book-by-doctor', async (req, res) => {
     const { patientId, doctorId, appointmentDate, notes, consultationType } = req.body;
+
+    console.log('Received request to book appointment:', { patientId, doctorId, appointmentDate, notes, consultationType });
 
     if (!patientId || !doctorId || !appointmentDate) {
         return res.status(400).json({ success: false, message: 'Patient, doctor, and date are required.' });
@@ -115,17 +116,26 @@ router.post('/book-by-doctor', async (req, res) => {
     }
 
     try {
+        console.log('Formatting appointment date...');
         const formattedAppointmentDate = new Date(appointmentDate).toISOString().slice(0, 19).replace('T', ' ');
+        console.log('Formatted appointment date:', formattedAppointmentDate);
+
+        console.log('Inserting appointment into database...');
         const result = await new Promise((resolve, reject) => {
             const sql = "INSERT INTO appointments (patientId, doctorId, appointmentDate, notes, status, consultationType) VALUES (?, ?, ?, ?, 'scheduled', ?)";
             executeQuery(sql, [patientId, doctorId, formattedAppointmentDate, notes, consultationType], (err, result) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('Error inserting appointment:', err);
+                    return reject(err);
+                }
+                console.log('Appointment inserted successfully, ID:', result.insertId);
                 resolve(result);
             });
         });
 
         const appointmentId = result.insertId;
 
+        console.log('Fetching patient and doctor details...');
         const details = await new Promise((resolve, reject) => {
             const sql = `
                 SELECT 
@@ -138,7 +148,15 @@ router.post('/book-by-doctor', async (req, res) => {
                 WHERE a.id = ?
             `;
             executeQuery(sql, [appointmentId], (err, results) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('Error fetching patient and doctor details:', err);
+                    return reject(err);
+                }
+                if (results.length === 0) {
+                    console.error('Could not find details for appointment ID:', appointmentId);
+                    return reject(new Error('Could not find appointment details.'));
+                }
+                console.log('Patient and doctor details fetched successfully:', results[0]);
                 resolve(results[0]);
             });
         });
@@ -150,14 +168,22 @@ router.post('/book-by-doctor', async (req, res) => {
             let message = `Hi ${details.patientFirstName}, your appointment with Dr. ${details.doctorName} is confirmed for ${formattedDate} at ${formattedTime}.`;
 
             if (consultationType === 'virtual') {
+                console.log('Virtual consultation, generating room URL...');
                 const roomUrl = generateRoomUrl(appointmentId);
+                console.log('Generated room URL:', roomUrl);
+
                 const startTime = new Date(appointmentDate).toISOString();
                 const endTime = new Date(new Date(appointmentDate).getTime() + 30 * 60 * 1000).toISOString(); // 30 min duration
 
+                console.log('Inserting virtual consultation room into database...');
                 await new Promise((resolve, reject) => {
                     const insertSql = 'INSERT INTO virtual_consultation_rooms (appointmentId, roomUrl, startTime, endTime, status) VALUES (?, ?, ?, ?, ?)';
                     executeQuery(insertSql, [appointmentId, roomUrl, startTime, endTime, 'scheduled'], (err, result) => {
-                        if (err) return reject(err);
+                        if (err) {
+                            console.error('Error inserting virtual consultation room:', err);
+                            return reject(err);
+                        }
+                        console.log('Virtual consultation room inserted successfully.');
                         resolve(result);
                     });
                 });
@@ -165,6 +191,7 @@ router.post('/book-by-doctor', async (req, res) => {
                 message += ` Join here: ${roomUrl}`;
             }
 
+            console.log('Sending SMS...');
             await sendSms(details.phone, message);
             console.log(`SMS notification sent to ${details.phone}`);
         } else {
@@ -178,5 +205,6 @@ router.post('/book-by-doctor', async (req, res) => {
         res.status(500).json({ success: false, message: 'Database error while booking appointment.' });
     }
 });
+
 
 module.exports = router;
