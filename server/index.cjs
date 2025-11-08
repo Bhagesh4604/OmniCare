@@ -24,7 +24,7 @@ wss.on('connection', (ws) => {
 const PORT = process.env.PORT || 8080;
 
 const corsOptions = {
-  origin: ['https://localhost', 'http://localhost', 'capacitor://localhost', 'http://localhost:8100'],
+  origin: ['https://localhost', 'http://localhost', 'capacitor://localhost', 'http://localhost:8100', 'https://shreemedicare1.onrender.com'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
