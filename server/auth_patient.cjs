@@ -67,16 +67,25 @@ router.post('/register', async (req, res) => {
         // Send verification email and welcome SMS
         const { sendVerificationEmail } = require('./email.cjs');
         const { sendSms } = require('./sms.cjs');
+        let servicesFailed = false;
 
-        await Promise.all([
+        await Promise.allSettled([
             sendVerificationEmail(email, verificationToken),
             sendSms(contact, 'Welcome to Shree Medicare! Your registration was successful.')
-        ]).catch(err => {
-            console.error("Failed to send email or SMS during registration:", err);
-            // Don't block registration if email/SMS fails, just log the error
+        ]).then(results => {
+            results.forEach(result => {
+                if (result.status === 'rejected') {
+                    console.error("Failed to send email or SMS during registration:", result.reason);
+                    servicesFailed = true;
+                }
+            });
         });
 
-        res.json({ success: true, message: 'Patient registered successfully! A verification email has been sent.' });
+        if (servicesFailed) {
+            res.json({ success: true, message: 'Patient registered successfully, but failed to send verification email or SMS. Please contact support.' });
+        } else {
+            res.json({ success: true, message: 'Patient registered successfully! A verification email and welcome SMS have been sent.' });
+        }
 
     } catch (err) {
         if (connection) {
@@ -89,6 +98,63 @@ router.post('/register', async (req, res) => {
         console.error('Registration error:', err);
         res.status(500).json({ success: false, message: 'Failed to register patient.' });
 
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// Resend Verification Email
+router.post('/resend-verification', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+
+    let connection;
+    try {
+        connection = await new Promise((resolve, reject) => {
+            pool.getConnection((err, conn) => {
+                if (err) return reject(err);
+                resolve(conn);
+            });
+        });
+
+        const findUserSql = 'SELECT * FROM patients_auth WHERE email = ?';
+        const users = await new Promise((resolve, reject) => {
+            connection.query(findUserSql, [email], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            });
+        });
+
+        if (users.length === 0) {
+            return res.status(404).json({ success: false, message: 'No patient found with this email address.' });
+        }
+
+        const user = users[0];
+
+        if (user.isVerified) {
+            return res.status(400).json({ success: false, message: 'This account is already verified.' });
+        }
+
+        const newVerificationToken = crypto.randomBytes(20).toString('hex');
+        const updateTokenSql = 'UPDATE patients_auth SET verificationToken = ? WHERE id = ?';
+        await new Promise((resolve, reject) => {
+            connection.query(updateTokenSql, [newVerificationToken, user.id], (err, result) => {
+                if (err) return reject(err);
+                resolve(result);
+            });
+        });
+
+        const { sendVerificationEmail } = require('./email.cjs');
+        await sendVerificationEmail(email, newVerificationToken);
+
+        res.json({ success: true, message: 'A new verification link has been sent to your email.' });
+
+    } catch (err) {
+        console.error('Resend verification error:', err);
+        res.status(500).json({ success: false, message: 'Failed to resend verification email.' });
     } finally {
         if (connection) connection.release();
     }
