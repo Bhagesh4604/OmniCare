@@ -185,10 +185,10 @@ export default function LandingPage({ setLoginPortal }) {
                 className="text-center mb-16"
               >
                 <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  Our Network of Care
+                  Our Location
                 </h2>
                 <p className="text-xl text-muted-foreground">
-                  Find us across major cities in India
+                  Find us at our prime location
                 </p>
               </motion.div>
 
@@ -198,34 +198,36 @@ export default function LandingPage({ setLoginPortal }) {
                 </div>
 
                 <div className="space-y-6">
-                  {cities.map((city, index) => (
                     <motion.div
-                      key={index}
                       initial={{ opacity: 0, x: 20 }}
                       whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.6 }}
+                      transition={{ duration: 0.6 }}
                       viewport={{ once: true }}
                     >
-                      <Card className="backdrop-blur-sm bg-card/50 border-border hover:border-primary/50 transition-all" onClick={() => setSelectedCity(city)}>
+                      <Card className="backdrop-blur-sm bg-card/50 border-border">
                         <CardHeader>
                           <CardTitle className="flex items-center">
                             <MapPin className="w-5 h-5 mr-2 text-primary" />
-                            {city.name}
+                            Shree Medicare Hospital
                           </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-2">
+                        <CardContent className="space-y-4">
                           <p className="text-sm text-muted-foreground flex items-start">
                             <Mail className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                            {city.address}
+                            96GF+GMJ, Tolnoor, Maharashtra 413227
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center">
                             <Phone className="w-4 h-4 mr-2" />
-                            {city.phone}
+                            +91 123 456 7890 (Dummy Number)
                           </p>
+                          <GradientButton
+                            onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('96GF+GMJ, Tolnoor, Maharashtra 413227')}`, '_blank')}
+                          >
+                            Get Directions
+                          </GradientButton>
                         </CardContent>
                       </Card>
                     </motion.div>
-                  ))}
                 </div>
               </div>
             </div>
