@@ -26,7 +26,7 @@ export default function VerifyEmail() {
         if (data.success) {
           setMessage(data.message);
           setTimeout(() => {
-            navigate('/');
+            navigate('/?verified=true');
           }, 3000);
         } else {
           setError(data.message || 'Failed to verify email.');

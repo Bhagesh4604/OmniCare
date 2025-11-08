@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -119,10 +119,21 @@ const MainApplication = ({ user, onLogout, updateUser }) => {
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState(null);
-  console.log('loggedInUser:', loggedInUser);
+  console.log('App: loggedInUser:', loggedInUser);
   const [loginPortal, setLoginPortal] = useState(null);
+  console.log('App: loginPortal:', loginPortal);
   const [loginType, setLoginType] = useState(null);
   const [patientAuthMode, setPatientAuthMode] = useState('login');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isVerifiedParam = params.get('verified');
+    console.log('App: Detected "verified" URL parameter:', isVerifiedParam);
+    if (isVerifiedParam === 'true') {
+      console.log('App: Setting loginPortal to "patient" due to verification.');
+      setLoginPortal('patient');
+    }
+  }, []);
 
   const handleLogin = (user) => {
     const userWithRole = user.role ? user : { ...user, role: 'patient' };

@@ -344,8 +344,10 @@ router.post('/google-login', async (req, res) => {
 // Verify Email
 router.get('/verify-email', async (req, res) => {
     const { token } = req.query;
+    console.log('Backend: Received verification request for token:', token); // Added log
 
     if (!token) {
+        console.log('Backend: Verification token is missing.'); // Added log
         return res.status(400).json({ success: false, message: 'Verification token is missing.' });
     }
 
@@ -353,49 +355,62 @@ router.get('/verify-email', async (req, res) => {
     try {
         connection = await new Promise((resolve, reject) => {
             pool.getConnection((err, conn) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('Backend: Error getting DB connection for verification:', err); // Added log
+                    return reject(err);
+                }
                 resolve(conn);
             });
         });
 
         const findUserSql = 'SELECT * FROM patients_auth WHERE verificationToken = ?';
+        console.log('Backend: Searching for user with token:', token); // Added log
         const users = await new Promise((resolve, reject) => {
             connection.query(findUserSql, [token], (err, results) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('Backend: Error finding user for verification:', err); // Added log
+                    return reject(err);
+                }
                 resolve(results);
             });
         });
 
         if (users.length === 0) {
+            console.log('Backend: Invalid or expired verification token:', token); // Added log
             return res.status(400).json({ success: false, message: 'Invalid or expired verification token.' });
         }
 
         const patientAuth = users[0];
+        console.log('Backend: Found user for verification:', patientAuth.id, 'Email:', patientAuth.email); // Added log
 
         const updateSql = 'UPDATE patients_auth SET isVerified = 1, verificationToken = NULL WHERE id = ?';
+        console.log('Backend: Executing update query for user:', patientAuth.id); // Added log
         const updateResult = await new Promise((resolve, reject) => {
             connection.query(updateSql, [patientAuth.id], (err, result) => {
-                if (err) return reject(err);
+                if (err) {
+                    console.error('Backend: Error updating user verification status:', err); // Added log
+                    return reject(err);
+                }
                 resolve(result);
             });
         });
 
-        console.log('Update result:', updateResult);
+        console.log('Backend: Update result:', updateResult);
 
         if (updateResult.affectedRows === 0) {
-            // This case should ideally not be reached if the token was found.
-            // It could happen in a race condition if the link is clicked twice.
-            // We can treat it as a success from the user's perspective.
-            console.log(`Verification for user ${patientAuth.id} attempted, but no rows were updated. User might already be verified.`);
+            console.log(`Backend: Verification for user ${patientAuth.id} attempted, but no rows were updated. User might already be verified.`);
+        } else {
+            console.log(`Backend: User ${patientAuth.id} successfully verified.`); // Added log
         }
 
         res.json({ success: true, message: 'Email has been verified successfully! Redirecting...' });
 
     } catch (err) {
-        console.error('Email verification error:', err);
+        console.error('Backend: Email verification error in catch block:', err); // Added log
         res.status(500).json({ success: false, message: 'An error occurred during email verification.' });
     } finally {
         if (connection) connection.release();
+        console.log('Backend: DB connection released.'); // Added log
     }
 });
 

@@ -13,6 +13,19 @@ export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
   const [showResendVerification, setShowResendVerification] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState('');
+  console.log('PatientLogin: verificationMessage state:', verificationMessage);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isVerifiedParam = params.get('verified');
+    console.log('PatientLogin: Detected "verified" URL parameter:', isVerifiedParam);
+    if (isVerifiedParam === 'true') {
+      const message = 'Your email has been verified successfully! You can now log in.';
+      console.log('PatientLogin: Setting verificationMessage:', message);
+      setVerificationMessage(message);
+    }
+  }, []);
 
 
 
@@ -121,6 +134,16 @@ export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
           <p className="text-gray-300 mt-2 text-base">Sign in to access your health dashboard.</p>
         </motion.div>
         
+        {verificationMessage && (
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-green-400 text-center bg-green-900/30 p-3 rounded-lg"
+          >
+            {verificationMessage}
+          </motion.p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <motion.div variants={itemVariants}>
             <label className="block text-sm font-medium text-gray-400 mb-2">Email</label>
