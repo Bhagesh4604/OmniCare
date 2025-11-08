@@ -22,6 +22,7 @@ router.get('/stats', (req, res) => {
 
     Promise.all(promises)
         .then(results => {
+            console.log("Dashboard stats results:", results);
             const [totalPatients, activeStaff, availableBeds, totalRevenue] = results;
             res.json({
                 totalPatients: totalPatients,
@@ -51,6 +52,7 @@ router.get('/agenda', (req, res) => {
             console.error("Dashboard agenda query error:", err);
             return res.status(500).json({ success: false, message: 'Internal server error' });
         }
+        console.log("Dashboard agenda results:", results);
         res.json(results);
     });
 });

@@ -50,6 +50,7 @@ router.get('/summary', (req, res) => {
     Promise.all(promises)
         .then(results => {
             const summaryData = results.reduce((acc, current) => ({...acc, ...current}), {});
+            console.log("Analytics summary results:", summaryData);
             res.json(summaryData);
         })
         .catch(err => {

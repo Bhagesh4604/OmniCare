@@ -144,6 +144,21 @@ router.put('/change-password/:id', (req, res) => {
     });
 });
 
+router.put('/reset-password/:id', (req, res) => {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    bcrypt.hash(password, 10, (hashErr, hash) => {
+        if (hashErr) return res.status(500).json({ success: false, message: 'Error hashing new password.' });
+
+        const updateSql = 'UPDATE employees SET password = ? WHERE id = ?';
+        executeQuery(updateSql, [hash, id], (updateErr, updateResult) => {
+            if (updateErr) return res.status(500).json({ success: false, message: 'Failed to reset password.' });
+            res.json({ success: true, message: 'Password reset successfully!' });
+        });
+    });
+});
+
 // DELETE an employee
 router.delete('/:id', (req, res) => {
     const { id } = req.params;

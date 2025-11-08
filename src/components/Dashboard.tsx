@@ -66,16 +66,18 @@ export default function Dashboard({ setActiveModule }) {
     fetchDashboardData();
   }, []);
 
-  const fetchDashboardData = async () => {
+    const fetchDashboardData = async () => {
     try {
       const statsResponse = await fetch(apiUrl('/api/dashboard/stats'));
       const statsData = await statsResponse.json();
+      console.log("Dashboard stats data:", statsData);
       if (statsData) {
         setStats(statsData);
       }
 
       const agendaResponse = await fetch(apiUrl('/api/dashboard/agenda')); 
       const agendaData = await agendaResponse.json();
+      console.log("Dashboard agenda data:", agendaData);
       if (Array.isArray(agendaData)) {
           setAgenda(agendaData);
       }

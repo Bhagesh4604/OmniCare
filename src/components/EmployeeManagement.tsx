@@ -176,6 +176,27 @@ export default function EmployeeManagement() {
             alert('Failed to connect to the server.');
         }
     };
+
+    const handleResetPassword = async (newPassword) => {
+        if (!selectedEmployee) return;
+
+        try {
+            const response = await fetch(apiUrl(`/api/employees/reset-password/${selectedEmployee.id}`), {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: newPassword }),
+            });
+            const data = await response.json();
+            if (data.success) {
+                setModal(null);
+                alert('Password has been reset successfully!');
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            alert('Failed to connect to the server.');
+        }
+    };
     
     const handleGenerateEmail = async (employee) => {
         setIsGenerating(true);
@@ -346,6 +367,16 @@ export default function EmployeeManagement() {
                                <p><strong>Department:</strong> {selectedEmployee.departmentName}</p>
                                <p><strong>Email:</strong> {selectedEmployee.email}</p>
                                <p><strong>Status:</strong> <span className="font-semibold capitalize">{selectedEmployee.status.replace('_', ' ')}</span></p>
+                            </div>
+                            <div className="mt-6 pt-4 border-t border-gray-800">
+                                <button onClick={() => {
+                                    const newPassword = prompt('Enter new password for the employee:');
+                                    if (newPassword) {
+                                        handleResetPassword(newPassword);
+                                    }
+                                }} className="w-full py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                                    Reset Password
+                                </button>
                             </div>
                         </div>
                     )}

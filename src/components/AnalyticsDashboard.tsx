@@ -86,7 +86,8 @@ const AnalyticsDashboard: React.FC = () => {
       try {
         const response = await fetch(apiUrl('/api/analytics/summary'));
         const data = await response.json();
-        console.log("Analytics data from backend:", JSON.stringify(data));
+        console.log("Analytics data from backend (raw):", data);
+        console.log("Analytics data from backend (stringified):", JSON.stringify(data));
 
         // Process chart data
         const admissionsData = Array.isArray(data.admissionsLast7Days) ? data.admissionsLast7Days : [];

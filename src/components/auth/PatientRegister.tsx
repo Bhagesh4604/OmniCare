@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import apiUrl from '@/config/api';
 
 export default function PatientRegister({ setAuthMode, setLoginPortal }) {
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', contact: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,6 +18,13 @@ export default function PatientRegister({ setAuthMode, setLoginPortal }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(formData.contact)) {
+        setError('Please enter a valid contact number in the format +911234567890.');
+        return;
+    }
+
     setIsLoading(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
@@ -101,6 +108,9 @@ export default function PatientRegister({ setAuthMode, setLoginPortal }) {
             </motion.div>
             <motion.div variants={itemVariants}>
                 <input name="email" type="email" onChange={handleInputChange} placeholder="Email Address" className="w-full px-4 py-3 bg-white/5 text-white border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all placeholder:text-gray-500" required />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <input name="contact" type="tel" onChange={handleInputChange} placeholder="Contact Number (e.g., +911234567890)" className="w-full px-4 py-3 bg-white/5 text-white border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all placeholder:text-gray-500" required />
             </motion.div>
             <motion.div variants={itemVariants}>
                 <input name="password" type="password" onChange={handleInputChange} placeholder="Password" className="w-full px-4 py-3 bg-white/5 text-white border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all placeholder:text-gray-500" required />

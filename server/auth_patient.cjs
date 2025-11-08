@@ -7,12 +7,18 @@ const crypto = require('crypto');
 
 // Patient Registration
 router.post('/register', async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, contact } = req.body;
 
     // Strict email format validation
     const { valid, reason, validators } = await deepEmailValidator.validate(email);
     if (!valid) {
         return res.status(400).json({ success: false, message: 'Invalid email format.', reason: reason });
+    }
+
+    // E.164 phone number format validation
+    const phoneRegex = /^\+[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(contact)) {
+        return res.status(400).json({ success: false, message: 'Invalid contact number format. Please use the format +911234567890.' });
     }
 
     let connection;
@@ -32,9 +38,9 @@ router.post('/register', async (req, res) => {
         });
 
         const patientId = `PAT${Math.floor(1000 + Math.random() * 9000)}`;
-        const patientSql = `INSERT INTO patients (patientId, firstName, lastName, email, status) VALUES (?, ?, ?, ?, 'active')`;
+        const patientSql = `INSERT INTO patients (patientId, firstName, lastName, email, contact, status) VALUES (?, ?, ?, ?, ?, 'active')`;
         const patientResult = await new Promise((resolve, reject) => {
-            connection.query(patientSql, [patientId, firstName, lastName, email], (err, result) => {
+            connection.query(patientSql, [patientId, firstName, lastName, email, contact], (err, result) => {
                 if (err) return reject(err);
                 resolve(result);
             });
@@ -58,6 +64,9 @@ router.post('/register', async (req, res) => {
                 resolve();
             });
         });
+
+        // TODO: Replace with a real SMS service (e.g., Twilio, Vonage)
+        console.log(`Sending SMS to ${contact}: Welcome to Shree Medicare! Your registration was successful.`);
 
         const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
         console.log('Verification link:', verificationLink);
