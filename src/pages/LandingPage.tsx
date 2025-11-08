@@ -218,7 +218,7 @@ export default function LandingPage({ setLoginPortal }) {
                           </p>
                           <p className="text-sm text-muted-foreground flex items-center">
                             <Phone className="w-4 h-4 mr-2" />
-                            +91 123 456 7890 (Dummy Number)
+                            +917483159830 
                           </p>
                           <GradientButton
                             onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('96GF+GMJ, Tolnoor, Maharashtra 413227')}`, '_blank')}
@@ -271,7 +271,7 @@ export default function LandingPage({ setLoginPortal }) {
 
         <footer className="py-6 bg-background border-t border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-            <p className="text-sm">&copy; 2025 Shree Medicare HMS. All Rights Reserved. Designed & Developed by Bhagesh.</p>
+            <p className="text-sm">&copy; 2025 Shree Medicare . All Rights Reserved. Designed & Developed by 🤍 Bhagesh.</p>
           </div>
         </footer>
 
