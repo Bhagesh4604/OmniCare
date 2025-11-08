@@ -2,17 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { pool, executeQuery } = require('./db.cjs');
 const bcrypt = require('bcryptjs');
-const deepEmailValidator = require('deep-email-validator');
 const crypto = require('crypto');
 
 // Patient Registration
 router.post('/register', async (req, res) => {
     const { firstName, lastName, email, password, contact } = req.body;
 
-    // Strict email format validation
-    const { valid, reason, validators } = await deepEmailValidator.validate(email);
-    if (!valid) {
-        return res.status(400).json({ success: false, message: 'Invalid email format.', reason: reason });
+    // Simple regex for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ success: false, message: 'Invalid email format.' });
     }
 
     // E.164 phone number format validation
