@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Users, Stethoscope, Bed, DollarSign, TrendingUp, Scissors, Sun, Moon, Activity, Pill } from 'lucide-react';
 
 import { useTheme } from '../context/ThemeContext';
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Re-styled Stat Card Component ---
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (

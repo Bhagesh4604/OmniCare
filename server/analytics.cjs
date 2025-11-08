@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('./db.cjs');
 
-router.get('/summary', (req, res) => {
+router.get('/summary', async (req, res) => {
     const today = new Date().toISOString().slice(0, 10);
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
@@ -38,25 +38,25 @@ router.get('/summary', (req, res) => {
         revenueToday: [today],
     };
 
-    const promises = Object.entries(queries).map(([key, sql]) => {
-        return new Promise((resolve, reject) => {
-            executeQuery(sql, params[key], (err, results) => {
-                if (err) return reject(err);
-                resolve({ [key]: results });
-            });
-        });
-    });
+    const summaryData = {};
 
-    Promise.all(promises)
-        .then(results => {
-            const summaryData = results.reduce((acc, current) => ({...acc, ...current}), {});
-            console.log("Analytics summary results:", summaryData);
-            res.json(summaryData);
-        })
-        .catch(err => {
-            console.error("Analytics summary query error:", err);
-            res.status(500).json({ success: false, message: 'Internal server error', error: err.message || err });
-        });
+    try {
+        for (const [key, sql] of Object.entries(queries)) {
+            const results = await new Promise((resolve, reject) => {
+                executeQuery(sql, params[key], (err, results) => {
+                    if (err) return reject(err);
+                    resolve(results);
+                });
+            });
+            summaryData[key] = results;
+        }
+
+        console.log("Analytics summary results:", summaryData);
+        res.json(summaryData);
+    } catch (err) {
+        console.error("Analytics summary query error:", err);
+        res.status(500).json({ success: false, message: 'Internal server error', error: err.message || err });
+    }
 });
 
 

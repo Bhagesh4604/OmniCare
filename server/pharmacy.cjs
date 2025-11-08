@@ -110,7 +110,7 @@ router.put('/medicines/:id', (req, res) => {
             if (pharmacistPhone) {
                 sendSms(pharmacistPhone, message)
                     .then(smsResult => console.log('Low stock SMS sent:', smsResult.sid))
-                    .catch(smsError => console.error('Failed to send low stock SMS:', smsError));
+                    .catch(smsError => console.error('Failed to send low stock SMS (error handled gracefully):', smsError.message));
             }
         }
 

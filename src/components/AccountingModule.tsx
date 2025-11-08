@@ -5,7 +5,7 @@ import { Plus, Trash2, DollarSign, ArrowDown, ArrowUp, X, Sparkles, Mail, Send, 
 import { useTheme } from '../context/ThemeContext';
 
 // In a real app, these would be in separate files
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Reusable Components ---
 

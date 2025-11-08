@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-const apiUrl = (path) => `http://localhost:8080${path}`;
+import apiUrl from '@/config/api';
 
 interface Position {
   x: number;

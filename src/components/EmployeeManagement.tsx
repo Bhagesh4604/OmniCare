@@ -5,7 +5,7 @@ import { Plus, Search, Eye, Edit2, Trash2, X, Users, UserCog, Stethoscope, Spark
 import { useTheme } from '../context/ThemeContext';
 
 // In a real app, these would be in separate files
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Reusable Components ---
 

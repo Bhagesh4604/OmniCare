@@ -5,7 +5,7 @@ import { Plus, Edit2, Trash2, Pill, Package, AlertTriangle, X, Sparkles, Send, A
 import { useTheme } from '../context/ThemeContext';
 
 // In a real app, these would be in separate files
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Reusable Components ---
 

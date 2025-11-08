@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles, FileText, ListChecks } from 'lucide-react';
 
 // In a real app, these would be in separate files
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Main AI Assistant Modal ---
 export default function AIAssistantModal({ onClose, records = [], labResults = [], prescriptions = [], patientName = '' }) {

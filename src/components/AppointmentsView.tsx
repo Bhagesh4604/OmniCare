@@ -5,7 +5,7 @@ import { Calendar, Clock, CheckCircle, Sparkles, X, User } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 // In a real app, these would be in separate files
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 // --- Reusable Components ---
 

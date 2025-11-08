@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { BedDouble, UserPlus, X, Wind } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 const wsUrl = import.meta.env.VITE_API_BASE ? new URL(import.meta.env.VITE_API_BASE).hostname : 'localhost:8080';
 
 // Modal Component

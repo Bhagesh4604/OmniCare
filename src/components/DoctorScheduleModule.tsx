@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Clock, Save } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 

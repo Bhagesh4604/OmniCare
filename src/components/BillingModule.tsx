@@ -4,7 +4,7 @@ import { Plus, Search, Eye, Edit2, Trash2, DollarSign, FileText, X, User } from 
 
 import { useTheme } from '../context/ThemeContext';
 
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 const Modal = ({ children, onClose, width = "max-w-lg" }) => (
     <AnimatePresence>

@@ -4,7 +4,7 @@ import { Plus, Search, Edit2, Trash2, Syringe, Calendar, User, X } from 'lucide-
 
 import { useTheme } from '../context/ThemeContext';
 
-import apiUrl from '../config/api';
+import apiUrl from '@/config/api';
 
 const Modal = ({ children, onClose, width = "max-w-lg" }) => (
     <AnimatePresence>
