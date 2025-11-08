@@ -27,7 +27,6 @@ export default function PatientRegister({ setAuthMode, setLoginPortal }) {
 
     setIsLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
       const response = await fetch(apiUrl('/api/auth/patient/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -64,28 +64,22 @@ router.post('/register', async (req, res) => {
             });
         });
 
-        // Send verification email and welcome SMS
+        // Send verification email and welcome SMS (fire and forget)
         const { sendVerificationEmail } = require('./email.cjs');
         const { sendSms } = require('./sms.cjs');
-        let servicesFailed = false;
-
-        await Promise.allSettled([
+        
+        Promise.allSettled([
             sendVerificationEmail(email, verificationToken),
             sendSms(contact, 'Welcome to Shree Medicare! Your registration was successful.')
         ]).then(results => {
             results.forEach(result => {
                 if (result.status === 'rejected') {
                     console.error("Failed to send email or SMS during registration:", result.reason);
-                    servicesFailed = true;
                 }
             });
         });
 
-        if (servicesFailed) {
-            res.json({ success: true, message: 'Patient registered successfully, but failed to send verification email or SMS. Please contact support.' });
-        } else {
-            res.json({ success: true, message: 'Patient registered successfully! A verification email and welcome SMS have been sent.' });
-        }
+        res.json({ success: true, message: 'Patient registered successfully! A verification email and welcome SMS are being sent.' });
 
     } catch (err) {
         if (connection) {
@@ -147,10 +141,13 @@ router.post('/resend-verification', async (req, res) => {
             });
         });
 
+        // Send the email (fire and forget)
         const { sendVerificationEmail } = require('./email.cjs');
-        await sendVerificationEmail(email, newVerificationToken);
+        sendVerificationEmail(email, newVerificationToken).catch(err => {
+            console.error('Failed to resend verification email:', err);
+        });
 
-        res.json({ success: true, message: 'A new verification link has been sent to your email.' });
+        res.json({ success: true, message: 'A new verification link is being sent to your email.' });
 
     } catch (err) {
         console.error('Resend verification error:', err);
