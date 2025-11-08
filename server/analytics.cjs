@@ -24,8 +24,8 @@ router.get('/summary', async (req, res) => {
         newPatientsToday: `SELECT COUNT(id) as count FROM admissions WHERE DATE(admissionDate) = ?`,
         appointmentsToday: `SELECT COUNT(id) as count FROM appointments WHERE DATE(appointmentDate) = ?`,
         bedOccupancy: `SELECT SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied, COUNT(id) as total FROM beds`,
-        totalRevenue: `SELECT SUM(amount) as total FROM accounts_receivable WHERE paymentStatus = 'paid'`,
-        revenueToday: `SELECT SUM(amount) as total FROM accounts_receivable WHERE paymentStatus = 'paid' AND DATE(dueDate) = ?`,
+        totalRevenue: `SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid'`,
+        revenueToday: `SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid' AND DATE(dueDate) = ?`,
     };
 
     const params = {

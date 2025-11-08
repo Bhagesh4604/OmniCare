@@ -102,13 +102,18 @@ const AnalyticsDashboard: React.FC = () => {
         ]);
 
         // Process stats
+        const getSafeNumber = (value) => {
+            const num = Number(value);
+            return isNaN(num) ? 0 : num;
+        };
+
         setStats({
-            newPatients: (data.newPatientsToday && data.newPatientsToday[0]?.count) || 0,
-            todaysAppointments: (data.appointmentsToday && data.appointmentsToday[0]?.count) || 0,
-            bedOccupancy: (data.bedOccupancy && data.bedOccupancy[0] && data.bedOccupancy[0].total > 0) ? (data.bedOccupancy[0].occupied / data.bedOccupancy[0].total) * 100 : 0,
+            newPatients: getSafeNumber(data.newPatientsToday?.[0]?.count),
+            todaysAppointments: getSafeNumber(data.appointmentsToday?.[0]?.count),
+            bedOccupancy: getSafeNumber(data.bedOccupancy?.[0]?.total) > 0 ? (getSafeNumber(data.bedOccupancy?.[0]?.occupied) / getSafeNumber(data.bedOccupancy?.[0]?.total)) * 100 : 0,
             avgWaitTime: 25, // Mock data
-            totalRevenue: (data.totalRevenue && data.totalRevenue[0]?.total) || 0,
-            revenueToday: (data.revenueToday && data.revenueToday[0]?.total) || 0,
+            totalRevenue: getSafeNumber(data.totalRevenue?.[0]?.total),
+            revenueToday: getSafeNumber(data.revenueToday?.[0]?.total),
         });
 
       } catch (error) {
@@ -250,7 +255,7 @@ const AnalyticsDashboard: React.FC = () => {
                 <span className="truncate" title="Bed Occupancy Rate">Bed Occupancy Rate</span>
               </div>
               <div className="flex gap-2 w-1/2 justify-end items-center">
-                <span className="font-semibold text-xl text-foreground">{stats.bedOccupancy?.toFixed(1) || 0}%</span>
+                <span className="font-semibold text-xl text-foreground">{Number(stats.bedOccupancy || 0).toFixed(1)}%</span>
               </div>
             </motion.div>
             <motion.div className="flex w-full py-4 items-center gap-2">
