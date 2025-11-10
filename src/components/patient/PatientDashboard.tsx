@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { zonedTimeToUtc, format } from 'date-fns-tz';
 
 import { useTheme } from '../../context/ThemeContext';
 import { Button } from '../ui/button';
@@ -103,11 +104,13 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             alert("Please select an available time slot.");
             return;
         }
+        const timeZone = 'Asia/Kolkata';
+        const utcAppointmentDate = zonedTimeToUtc(bookingSlot, timeZone);
         try {
             const response = await fetch(apiUrl('/api/portal/book-appointment'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...newAppointment, patientId: patient.id, appointmentDate: bookingSlot }),
+                body: JSON.stringify({ ...newAppointment, patientId: patient.id, appointmentDate: utcAppointmentDate }),
             });
             const data = await response.json();
             if (data.success) {
@@ -366,8 +369,8 @@ ${result.result_text}
                     {appointments.length > 0 ? appointments.map(app => (
                         <li key={app.id} className="p-4">
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">{new Date(app.appointmentDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-                                <p className="text-xs text-gray-400">with {app.doctorName} at {new Date(app.appointmentDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">{format(new Date(app.appointmentDate), 'eeee, MMMM d, yyyy', { timeZone: 'Asia/Kolkata' })}</p>
+                                <p className="text-xs text-gray-400">with {app.doctorName} at {format(new Date(app.appointmentDate), 'h:mm a zzz', { timeZone: 'Asia/Kolkata' })}</p>
                             </div>
                             <div className="flex items-center justify-between mt-2">
                                 <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${app.status === 'scheduled' ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300' : app.status === 'canceled' ? 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'}`}>{app.status}</span>

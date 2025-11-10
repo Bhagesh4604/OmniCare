@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('./db.cjs');
+const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz');
 
 // Get a doctor's schedule
 router.get('/:doctorId', (req, res) => {
@@ -56,7 +57,8 @@ router.post('/', (req, res) => {
 // Get available appointment slots for a doctor on a specific date
 router.get('/available-slots/:doctorId/:date', (req, res) => {
     const { doctorId, date } = req.params; // date is in YYYY-MM-DD format
-    const dayOfWeek = new Date(date + 'T00:00:00Z').getUTCDay();
+    const timeZone = 'Asia/Kolkata'; // Assuming doctor's timezone is IST
+    const dayOfWeek = new Date(date).getUTCDay();
 
     const scheduleSql = 'SELECT startTime, endTime FROM doctor_schedules WHERE doctorId = ? AND dayOfWeek = ?';
     
@@ -72,15 +74,17 @@ router.get('/available-slots/:doctorId/:date', (req, res) => {
         executeQuery(appointmentsSql, [doctorId, date, date], (err, appointmentResults) => {
             if (err) return res.status(500).json({ success: false, message: 'DB error fetching appointments.' });
 
-            const bookedTimes = appointmentResults.map(a => new Date(a.appointmentDate).getTime());
+            const bookedTimes = appointmentResults.map(a => utcToZonedTime(new Date(a.appointmentDate), timeZone).getTime());
             
             const availableSlots = [];
             const slotDuration = 30 * 60 * 1000; // 30 minutes
 
-            let currentTime = new Date(`${date}T${startTime}`);
-            const endTimeDate = new Date(`${date}T${endTime}`);
+            const startDateTime = zonedTimeToUtc(`${date}T${startTime}`, timeZone);
+            const endDateTime = zonedTimeToUtc(`${date}T${endTime}`, timeZone);
 
-            while (currentTime < endTimeDate) {
+            let currentTime = startDateTime;
+
+            while (currentTime < endDateTime) {
                 if (!bookedTimes.includes(currentTime.getTime())) {
                     availableSlots.push(currentTime.toISOString());
                 }

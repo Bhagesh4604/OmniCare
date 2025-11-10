@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns-tz';
 import { Calendar, Clock, CheckCircle, Sparkles, X, User } from 'lucide-react';
 
 import { useTheme } from '../context/ThemeContext';
@@ -172,7 +173,7 @@ export default function AppointmentsView({ user }) {
                                     <p className="font-bold text-white">{app.patientName}</p>
                                     <p className="text-sm text-gray-400">
                                         {isAdmin && <span className="flex items-center"><User size={12} className="mr-1"/>Dr. {app.doctorName}</span>}
-                                        {app.departmentName} - <span className="text-xs">{app.appointmentDate ? new Date(app.appointmentDate).toLocaleString() : 'No date'}</span>
+                                        {app.departmentName} - <span className="text-xs">{app.appointmentDate ? format(new Date(app.appointmentDate), 'PPpp', { timeZone: 'Asia/Kolkata' }) : 'No date'}</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-4">

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('./db.cjs');
 const { sendSms } = require('./sms.cjs');
+const { zonedTimeToUtc, format } = require('date-fns-tz');
 
 // GET all appointments (for Admin)
 router.get('/all', (req, res) => {
@@ -104,6 +105,7 @@ const generateRoomUrl = (appointmentId) => {
 
 router.post('/book-by-doctor', async (req, res) => {
     const { patientId, doctorId, appointmentDate, notes, consultationType } = req.body;
+    const timeZone = 'Asia/Kolkata'; // Assuming doctor's timezone is IST
 
     console.log('Received request to book appointment:', { patientId, doctorId, appointmentDate, notes, consultationType });
 
@@ -111,19 +113,17 @@ router.post('/book-by-doctor', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Patient, doctor, and date are required.' });
     }
 
-    if (new Date(appointmentDate) < new Date()) {
+    const utcAppointmentDate = zonedTimeToUtc(appointmentDate, timeZone);
+
+    if (utcAppointmentDate < new Date()) {
         return res.status(400).json({ success: false, message: 'Cannot book an appointment in the past.' });
     }
 
     try {
-        console.log('Formatting appointment date...');
-        const formattedAppointmentDate = new Date(appointmentDate).toISOString().slice(0, 19).replace('T', ' ');
-        console.log('Formatted appointment date:', formattedAppointmentDate);
-
         console.log('Inserting appointment into database...');
         const result = await new Promise((resolve, reject) => {
             const sql = "INSERT INTO appointments (patientId, doctorId, appointmentDate, notes, status, consultationType) VALUES (?, ?, ?, ?, 'scheduled', ?)";
-            executeQuery(sql, [patientId, doctorId, formattedAppointmentDate, notes, consultationType], (err, result) => {
+            executeQuery(sql, [patientId, doctorId, utcAppointmentDate, notes, consultationType], (err, result) => {
                 if (err) {
                     console.error('Error inserting appointment:', err);
                     return reject(err);
@@ -162,9 +162,8 @@ router.post('/book-by-doctor', async (req, res) => {
         });
 
         if (details && details.phone) {
-            const apptDate = new Date(appointmentDate);
-            const formattedDate = apptDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            const formattedTime = apptDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const formattedDate = format(utcAppointmentDate, 'eeee, MMMM d, yyyy', { timeZone });
+            const formattedTime = format(utcAppointmentDate, 'h:mm a zzz', { timeZone });
             let message = `Hi ${details.patientFirstName}, your appointment with Dr. ${details.doctorName} is confirmed for ${formattedDate} at ${formattedTime}.`;
 
             if (consultationType === 'virtual') {
@@ -172,8 +171,8 @@ router.post('/book-by-doctor', async (req, res) => {
                 const roomUrl = generateRoomUrl(appointmentId);
                 console.log('Generated room URL:', roomUrl);
 
-                const startTime = new Date(appointmentDate).toISOString();
-                const endTime = new Date(new Date(appointmentDate).getTime() + 30 * 60 * 1000).toISOString(); // 30 min duration
+                const startTime = utcAppointmentDate.toISOString();
+                const endTime = new Date(utcAppointmentDate.getTime() + 30 * 60 * 1000).toISOString(); // 30 min duration
 
                 console.log('Inserting virtual consultation room into database...');
                 await new Promise((resolve, reject) => {
