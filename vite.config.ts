@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      'import.meta.env.VITE_API_BASE': JSON.stringify("https://shreemedicare-backend.onrender.com")
+      'import.meta.env.VITE_API_BASE': JSON.stringify("http://localhost:8080")
     },
     build: {
       rollupOptions: {

@@ -315,7 +315,14 @@ export default function EmployeeManagement() {
                                <select name="departmentId" onChange={(e) => handleInputChange(e, 'new')} className="p-3 bg-gray-800 border-gray-700 rounded-lg" required><option value="">Select Department</option>{departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select>
                                <input name="position" onChange={(e) => handleInputChange(e, 'new')} placeholder="Position" className="p-3 bg-gray-800 border-gray-700 rounded-lg" required />
                                <input type="date" name="hireDate" onChange={(e) => handleInputChange(e, 'new')} className="p-3 bg-gray-800 border-gray-700 rounded-lg" required />
-                               <select name="role" value={newEmployee.role} onChange={(e) => handleInputChange(e, 'new')} className="p-3 bg-gray-800 border-gray-700 rounded-lg" required><option value="staff">Staff</option><option value="doctor">Doctor</option><option value="admin">Admin</option></select>
+                               <select name="role" value={newEmployee.role} onChange={(e) => handleInputChange(e, 'new')} className="p-3 bg-gray-800 border-gray-700 rounded-lg" required>
+    <option value="staff">Staff</option>
+    <option value="doctor">Doctor</option>
+    <option value="admin">Admin</option>
+    <option value="ROLE_DISPATCHER">Dispatcher</option>
+    <option value="ROLE_PARAMEDIC">Paramedic</option>
+    <option value="ROLE_ER_STAFF">ER Staff</option>
+</select>
                                <input name="phone" onChange={(e) => handleInputChange(e, 'new')} placeholder="Phone" className="p-3 bg-gray-800 border-gray-700 rounded-lg" />
                                <input type="number" name="salary" step="0.01" onChange={(e) => handleInputChange(e, 'new')} placeholder="Salary" className="p-3 bg-gray-800 border-gray-700 rounded-lg" required />
                             </div>

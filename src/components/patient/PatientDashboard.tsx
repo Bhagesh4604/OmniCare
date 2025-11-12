@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft } from 'lucide-react';
+import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { zonedTimeToUtc, format } from 'date-fns-tz';
+import { useNavigate } from 'react-router-dom';
 
 import { useTheme } from '../../context/ThemeContext';
 import { Button } from '../ui/button';
@@ -24,6 +25,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const [labResults, setLabResults] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [showModal, setShowModal] = useState(null);
+    const navigate = useNavigate();
     
     // Refactored state for appointment booking
     const [newAppointment, setNewAppointment] = useState({ doctorId: '', notes: '', consultationType: 'in-person' });
@@ -298,6 +300,15 @@ ${result.result_text}
                     </div>
                     <h3 className="font-semibold text-lg text-foreground">AI Symptom Checker</h3>
                     <p className="text-sm text-muted-foreground mt-1">Unsure about your symptoms? Get an AI-powered recommendation.</p>
+                </div>
+
+                {/* Ambulance Service */}
+                <div className="p-6 rounded-2xl border flex flex-col justify-center items-center text-center cursor-pointer bg-red-500/10 border-red-500/20 hover:border-red-500/50 transition-all" onClick={() => navigate('/patient/book-ambulance')}>
+                    <div className="p-3 rounded-full bg-red-500/10 mb-3">
+                        <Ambulance className="text-red-500" size={28} />
+                    </div>
+                    <h3 className="font-semibold text-lg text-red-500">Ambulance Service</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Request emergency medical transport.</p>
                 </div>
             </div>
 

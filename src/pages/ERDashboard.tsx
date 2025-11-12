@@ -1,0 +1,198 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import apiUrl from '@/config/api';
+import useWebSocket from '../hooks/useWebSocket';
+import MapView from '../components/ems/MapView'; // Import the MapView component
+
+// Define a hardcoded location for the hospital
+const HOSPITAL_LOCATION = { lat: 12.9716, lng: 77.5946 }; // Example: Bangalore
+
+const ERDashboard = () => {
+  const navigate = useNavigate();
+  const [transportingTrips, setTransportingTrips] = useState([]);
+  const [ambulanceLocations, setAmbulanceLocations] = useState({});
+  const [loadingTrips, setLoadingTrips] = useState(true);
+  const [errorTrips, setErrorTrips] = useState('');
+
+  const fetchTransportingTrips = async () => {
+    setLoadingTrips(true);
+    setErrorTrips('');
+    try {
+      const response = await fetch(apiUrl('/api/ems/trips/transporting'));
+      const data = await response.json();
+      if (data.success) {
+        setTransportingTrips(data.trips);
+        // Populate initial ambulance locations from the fetched trips
+        const newLocations = {};
+        data.trips.forEach(trip => {
+          if (trip.last_latitude && trip.last_longitude) {
+            newLocations[trip.assigned_ambulance_id] = {
+              lat: trip.last_latitude,
+              lng: trip.last_longitude,
+              timestamp: new Date().toISOString(), // Note: This is just the fetch time
+              vehicle_name: trip.vehicle_name,
+            };
+          }
+        });
+        setAmbulanceLocations(newLocations);
+      } else {
+        setErrorTrips(data.message || 'Failed to fetch transporting trips.');
+      }
+    } catch (error) {
+      console.error('Error fetching transporting trips:', error);
+      setErrorTrips('Failed to connect to the server to fetch transporting trips.');
+    } finally {
+      setLoadingTrips(false);
+    }
+  };
+
+  const handleWebSocketMessage = useCallback((message) => {
+    console.log('ER Dashboard received WebSocket message:', message);
+    const { type, payload } = message;
+
+    switch (type) {
+      case 'NEW_VITALS':
+        setTransportingTrips(prevTrips =>
+          prevTrips.map(trip =>
+            trip.trip_id === payload.trip_id
+              ? { ...trip, latest_vitals: payload }
+              : trip
+          )
+        );
+        break;
+      case 'TRIP_ETA_UPDATE':
+        setTransportingTrips(prevTrips =>
+          prevTrips.map(trip =>
+            trip.trip_id === payload.trip_id
+              ? { ...trip, eta_minutes: payload.eta_minutes }
+              : trip
+          )
+        );
+        break;
+      case 'TRIP_STATUS_UPDATE':
+        const { trip, lastLocation } = payload;
+        console.log('[TRIP_STATUS_UPDATE] Received:', { trip, lastLocation });
+        // If a trip's status changes TO 'Transporting', add it to the list and set its location.
+        if (trip.status === 'Transporting') {
+          setTransportingTrips(prevTrips => {
+            // Avoid adding duplicates, update if already present
+            if (prevTrips.some(t => t.trip_id === trip.trip_id)) {
+              return prevTrips.map(t => t.trip_id === trip.trip_id ? trip : t);
+            }
+            return [...prevTrips, trip];
+          });
+          // Also, set its initial location on the map
+          if (lastLocation) {
+            console.log('[TRIP_STATUS_UPDATE] Setting initial ambulance location:', lastLocation);
+            setAmbulanceLocations(prevLocations => ({
+              ...prevLocations,
+              [trip.assigned_ambulance_id]: {
+                lat: lastLocation.latitude,
+                lng: lastLocation.longitude,
+                timestamp: new Date().toISOString(),
+                vehicle_name: trip.vehicle_name,
+              },
+            }));
+          }
+        } else {
+          // If a trip is no longer 'Transporting', remove it.
+          setTransportingTrips(prevTrips =>
+            prevTrips.filter(t => t.trip_id !== trip.trip_id)
+          );
+        }
+        break;
+      case 'AMBULANCE_LOCATION_UPDATE':
+        setAmbulanceLocations(prevLocations => ({
+          ...prevLocations,
+          [payload.ambulance_id]: {
+            ...prevLocations[payload.ambulance_id],
+            lat: payload.latitude,
+            lng: payload.longitude,
+            timestamp: payload.timestamp,
+          },
+        }));
+        break;
+      default:
+        break;
+    }
+  }, []); // Empty dependency array ensures this function is created only once
+
+  useWebSocket(handleWebSocketMessage);
+
+  useEffect(() => {
+    fetchTransportingTrips(); // Initial fetch
+
+    const interval = setInterval(() => {
+      console.log('[ERDashboard] Polling for transporting trips...');
+      fetchTransportingTrips();
+    }, 10000); // Refetch every 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  // Create the destinations object for the MapView
+  const hospitalDestinations = transportingTrips.reduce((acc, trip) => {
+    if (trip.assigned_ambulance_id) {
+      acc[trip.assigned_ambulance_id] = HOSPITAL_LOCATION;
+    }
+    return acc;
+  }, {});
+
+  console.log('[ERDashboard Render] Props to MapView:', JSON.stringify({ ambulanceLocations, hospitalDestinations }, null, 2));
+
+  return (
+    <div className="p-8 bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">ER Pre-Arrival Dashboard</h1>
+        <button
+          onClick={() => navigate('/staff-dashboard')}
+          className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+        >
+          Back to Dashboard
+        </button>
+      </div>
+
+      {/* Map View */}
+      <div className="w-full h-96 mb-8 rounded-lg overflow-hidden shadow-lg">
+        <MapView ambulanceLocations={ambulanceLocations} destinations={hospitalDestinations} />
+      </div>
+
+      {loadingTrips ? (
+        <div className="text-center text-lg">Loading incoming trips...</div>
+      ) : errorTrips ? (
+        <div className="text-center text-lg text-red-500">Error: {errorTrips}</div>
+      ) : transportingTrips.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {transportingTrips.map(trip => (
+            <div key={trip.trip_id} className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+              <h2 className="text-2xl font-semibold mb-3">Trip ID: {trip.trip_id}</h2>
+              <p className="text-lg mb-1"><strong>Status:</strong> {trip.status}</p>
+              <p className="text-lg mb-1"><strong>Assigned Ambulance:</strong> {trip.vehicle_name} ({trip.license_plate})</p>
+              <p className="text-lg mb-3 font-bold text-blue-400">{trip.eta_minutes ? `ETA: ${trip.eta_minutes} mins` : 'ETA: Calculating...'}</p>
+
+              <div className="mt-4 p-3 border border-gray-200 dark:border-gray-700 rounded-md">
+                <h3 className="text-xl font-semibold mb-2">Latest Vitals</h3>
+                {trip.latest_vitals ? (
+                  <>
+                    <p className="text-base"><strong>Heart Rate:</strong> {trip.latest_vitals.heart_rate || 'N/A'} bpm</p>
+                    <p className="text-base"><strong>Blood Pressure:</strong> {trip.latest_vitals.blood_pressure_systolic || 'N/A'}/{trip.latest_vitals.blood_pressure_diastolic || 'N/A'} mmHg</p>
+                    <p className="text-base"><strong>Notes:</strong> {trip.latest_vitals.notes || 'N/A'}</p>
+                    <p className="text-sm text-gray-500">Last updated: {new Date(trip.latest_vitals.timestamp).toLocaleTimeString()}</p>
+                  </>
+                ) : (
+                  <p className="text-base">No vitals received yet.</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center text-lg text-gray-600 dark:text-gray-400">
+          No transporting emergency trips currently.
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ERDashboard;

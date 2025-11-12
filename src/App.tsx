@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- MODULE IMPORTS ---
@@ -16,8 +16,10 @@ import InventoryModule from './components/InventoryModule';
 import SMSModule from './components/SMSModule';
 import ImmunizationModule from './components/ImmunizationModule';
 import BillingModule from './components/BillingModule';
-import TelemedicineModule from './components/TelemedicineModule'; // New import // New import
+import TelemedicineModule from './components/TelemedicineModule';
 import PatientDashboard from './components/patient/PatientDashboard';
+import BookAmbulance from './pages/patient/BookAmbulance';
+import TrackAmbulance from './pages/patient/TrackAmbulance';
 import AppointmentsView from './components/AppointmentsView';
 import Dashboard from './components/Dashboard';
 import NewSidebar from './components/NewSidebar';
@@ -26,34 +28,33 @@ import LandingPage from './pages/LandingPage';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import Profile from './components/Profile';
 import BedManagement from './components/BedManagement';
-import { ShaderAnimation } from './components/ui/shader-animation';
+import FleetManagementDashboard from './pages/FleetManagementDashboard'; // New EMS Dashboard
+import ParamedicMode from './pages/ParamedicMode'; // New Paramedic Mode
+import ERDashboard from './pages/ERDashboard'; // New ER Dashboard
+import EmsLayout from './components/ems/EmsLayout'; // New EMS Layout
 
+// --- AUTH & ROUTING IMPORTS ---
 import StaffLogin from './components/auth/StaffLogin';
-import PatientLogin from './components/auth/PatientLogin';
+import PatientAuthPage from './pages/PatientAuthPage';
 import PatientRegister from './components/auth/PatientRegister';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
-import VerifyEmail from './components/auth/VerifyEmail';
-
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // --- THEME IMPORTS ---
 import { useTheme } from './context/ThemeContext';
-
 import { Button } from './components/ui/button';
 import { Sun, Moon } from 'lucide-react';
 
-// --- Main Application Structure ---
-
+// --- Main Staff Application Structure ---
 const MainApplication = ({ user, onLogout, updateUser }) => {
   const [activeModule, setActiveModule] = useState('dashboard');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [animationTrigger, setAnimationTrigger] = useState(0);
-  const { theme, toggleTheme } = useTheme();
+  const { toggleTheme } = useTheme();
 
   const handleModuleChange = (module) => {
     if (module !== activeModule) {
       setActiveModule(module);
-      setAnimationTrigger(c => c + 1); // Trigger the animation
     }
   };
 
@@ -113,63 +114,135 @@ const MainApplication = ({ user, onLogout, updateUser }) => {
       </div>
     </div>
   );
-}
+};
 
 // --- Root App Component ---
-
 function App() {
   const [loggedInUser, setLoggedInUser] = useState(null);
-  console.log('App: loggedInUser:', loggedInUser);
-  const [loginPortal, setLoginPortal] = useState(null);
-  console.log('App: loginPortal:', loginPortal);
-  const [loginType, setLoginType] = useState(null);
-  const [patientAuthMode, setPatientAuthMode] = useState('login');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('loggedInUser');
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const navigateToDashboard = (user) => {
+    switch (user.role) {
+      case 'patient':
+        navigate('/patient-dashboard');
+        break;
+      case 'ROLE_DISPATCHER':
+        navigate('/fleet-management');
+        break;
+      case 'ROLE_PARAMEDIC':
+        navigate('/paramedic-mode');
+        break;
+      case 'ROLE_ER_STAFF':
+        navigate('/er-dashboard');
+        break;
+      case 'admin':
+      case 'doctor':
+      default:
+        navigate('/staff-dashboard');
+        break;
+    }
+  };
 
   const handleLogin = (user) => {
     const userWithRole = user.role ? user : { ...user, role: 'patient' };
+    localStorage.setItem('loggedInUser', JSON.stringify(userWithRole));
     setLoggedInUser(userWithRole);
+    navigateToDashboard(userWithRole);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('loggedInUser');
     setLoggedInUser(null);
-    setLoginPortal(null);
-    setPatientAuthMode('login');
-  };
-
-  const handlePortalSelect = (portal) => {
-    setLoginPortal(portal);
+    navigate('/');
   };
 
   const updateLoggedInUser = (updatedData) => {
-    setLoggedInUser(prevUser => ({ ...prevUser, ...updatedData }));
+    const updatedUser = { ...loggedInUser, ...updatedData };
+    localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
+    setLoggedInUser(updatedUser);
   };
 
   return (
-      <Routes>
-            <Route path="/reset-password" element={<ResetPassword setAuthMode={setPatientAuthMode} />} />
-            <Route path="/" element={(() => {
-          if (!loggedInUser) {
-            if (loginPortal === 'staff') {
-              return <StaffLogin onLogin={handleLogin} setLoginPortal={setLoginPortal} />;
-            }
-            if (loginPortal === 'patient') {
-              if (patientAuthMode === 'login') {
-                return <PatientLogin onLogin={handleLogin} setAuthMode={setPatientAuthMode} setLoginPortal={setLoginPortal} />;
-              }
-              if (patientAuthMode === 'forgot_password') {
-                return <ForgotPassword setAuthMode={setPatientAuthMode} />;
-              }
-              return <PatientRegister setAuthMode={setPatientAuthMode} setLoginPortal={setLoginPortal} />;
-            }
-            return <LandingPage setLoginPortal={handlePortalSelect} />;
-          }
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={loggedInUser ? <Navigate to="/staff-dashboard" /> : <LandingPage />} />
+      <Route path="/login/staff" element={<StaffLogin onLogin={handleLogin} />} />
+      <Route path="/login/patient" element={<PatientAuthPage onLogin={handleLogin} />} />
+      <Route path="/register/patient" element={<PatientRegister />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-          if (loggedInUser.role === 'patient') {
-            return <PatientDashboard patient={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />;
-          }
-
-          return <MainApplication user={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />;
-        })()} />
+      {/* Protected Routes */}
+      <Route 
+        path="/staff-dashboard" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['admin', 'doctor']}>
+            <MainApplication user={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/patient-dashboard" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
+            <PatientDashboard patient={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/patient/book-ambulance" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
+            <BookAmbulance user={loggedInUser} />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/patient/track-ambulance/:tripId" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
+            <TrackAmbulance user={loggedInUser} />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/fleet-management" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['ROLE_DISPATCHER', 'admin']}>
+            <EmsLayout user={loggedInUser} onLogout={handleLogout}>
+              <FleetManagementDashboard />
+            </EmsLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/paramedic-mode" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['ROLE_PARAMEDIC']}>
+            <EmsLayout user={loggedInUser} onLogout={handleLogout}>
+              <ParamedicMode user={loggedInUser} />
+            </EmsLayout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/er-dashboard" 
+        element={
+          <ProtectedRoute user={loggedInUser} allowedRoles={['ROLE_ER_STAFF', 'admin']}>
+            <EmsLayout user={loggedInUser} onLogout={handleLogout}>
+              <ERDashboard />
+            </EmsLayout>
+          </ProtectedRoute>
+        } 
+      />
     </Routes>
   );
 }

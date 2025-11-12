@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useMotionTemplate, useMotionValue, animate } from 'framer-motion';
-import { 
+import { useNavigate } from 'react-router-dom';
+import {
   Calendar, 
   Code, 
   FileText, 
@@ -28,7 +29,8 @@ import AiSearchSection from '@/components/landing/AiSearchSection';
 import RadialOrbitalTimeline from '@/components/ui/radial-orbital-timeline';
 
 // Main Landing Page Component
-export default function LandingPage({ setLoginPortal }) {
+export default function LandingPage() {
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [selectedCity, setSelectedCity] = useState(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -37,9 +39,9 @@ export default function LandingPage({ setLoginPortal }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('verified') === 'true') {
-      setLoginPortal('patient');
+      navigate('/login/patient');
     }
-  }, [setLoginPortal]);
+  }, [navigate]);
 
   const timelineData = [
     {
@@ -262,14 +264,14 @@ export default function LandingPage({ setLoginPortal }) {
                   title="Patient Portal"
                   description="Access your medical records, book appointments, and manage your healthcare journey."
                   icon={UsersIcon}
-                  onClick={() => setLoginPortal('patient')}
+                  onClick={() => navigate('/login/patient')}
                   gradientColors={["#3b82f6", "#a855f7"]}
                 />
                 <AnimatedPortalCard 
                   title="Staff Portal"
                   description="Manage patient records, appointments, billing, and hospital operations efficiently."
                   icon={Shield}
-                  onClick={() => setLoginPortal('staff')}
+                  onClick={() => navigate('/login/staff')}
                   gradientColors={["#10b980", "#06b6d4"]}
                 />
               </div>

@@ -3,9 +3,11 @@ import { ArrowLeft, HeartPulse } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 
+import { useNavigate } from 'react-router-dom';
 import apiUrl from '@/config/api';
 
-export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
+export default function PatientLogin({ onLogin, setAuthMode }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -65,17 +67,17 @@ export default function PatientLogin({ onLogin, setAuthMode, setLoginPortal }) {
       <div className="absolute inset-0 bg-black/60 z-0"></div>
 
 
-      {/* Back Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        onClick={() => setLoginPortal(null)}
-        className="absolute left-4 flex items-center gap-2 text-gray-300 hover:text-white transition-colors z-20"
-        style={{ top: 'env(safe-area-inset-top, 3rem)' }}
-      >
-        <ArrowLeft size={20} /> Back to Portal Selection
-      </motion.button>
+
+
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={() => navigate('/')}
+          className="inline-flex items-center justify-center p-2 rounded-full text-white bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label="Back to Portal Selection"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+      </div>
 
       {/* Login Card */}
       <motion.div

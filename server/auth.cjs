@@ -42,7 +42,26 @@ router.post('/staff/login', (req, res) => {
 
       if (isMatch) {
         delete user.password; 
-        res.json({ success: true, message: 'Login successful!', user: user });
+        
+        // If the user is a paramedic, fetch their assigned ambulance_id
+        if (user.role === 'ROLE_PARAMEDIC') {
+          const ambulanceSql = 'SELECT ambulance_id FROM AmbulanceCrews WHERE user_id = ?';
+          executeQuery(ambulanceSql, [user.id], (ambErr, ambResults) => {
+            if (ambErr) {
+              console.error("Database error fetching ambulance_id for paramedic:", ambErr);
+              // Continue without ambulance_id if there's an error, or return an error if critical
+              return res.json({ success: true, message: 'Login successful (paramedic, ambulance_id not found).', user: user });
+            }
+            if (ambResults.length > 0) {
+              user.ambulance_id = ambResults[0].ambulance_id;
+            } else {
+              console.warn(`Paramedic ${user.id} logged in but no ambulance_id found.`);
+            }
+            res.json({ success: true, message: 'Login successful!', user: user });
+          });
+        } else {
+          res.json({ success: true, message: 'Login successful!', user: user });
+        }
       } else {
         res.status(401).json({ success: false, message: 'Invalid credentials.' });
       }

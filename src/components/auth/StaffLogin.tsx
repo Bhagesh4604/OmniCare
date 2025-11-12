@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Shield, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import apiUrl from '@/config/api';
 
-export default function StaffLogin({ onLogin, setLoginPortal }) {
+export default function StaffLogin({ onLogin }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('admin');
@@ -60,15 +62,17 @@ export default function StaffLogin({ onLogin, setLoginPortal }) {
     <div className="relative flex items-center justify-center min-h-screen bg-cover bg-center text-white font-sans overflow-hidden" style={{ backgroundImage: "url('/login-bg.jpg')" }}>
       <div className="absolute inset-0 bg-black/60 z-0"></div>
 
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        onClick={() => setLoginPortal(null)}
-        className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center gap-2 text-gray-300 hover:text-white transition-colors z-20"
-      >
-        <ArrowLeft size={20} /> Back to Portal Selection
-      </motion.button>
+
+
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={() => navigate('/')}
+          className="inline-flex items-center justify-center p-2 rounded-full text-white bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-label="Back to Portal Selection"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+      </div>
 
       <motion.div
         variants={containerVariants}
@@ -94,6 +98,9 @@ export default function StaffLogin({ onLogin, setLoginPortal }) {
             >
               <option value="admin">Admin</option>
               <option value="doctor">Doctor</option>
+              <option value="ROLE_DISPATCHER">Dispatcher</option>
+              <option value="ROLE_PARAMEDIC">Paramedic</option>
+              <option value="ROLE_ER_STAFF">ER Staff</option>
             </select>
           </motion.div>
           <motion.div variants={itemVariants}>

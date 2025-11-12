@@ -1,0 +1,24 @@
+Project: Shree Medicare - Hospital Management System
+
+## Current Status
+
+All features outlined in the provided roadmap have been implemented. The application is in a functional state, with the following key components in place:
+
+*   **Phase 1: The Foundation (Backend & Database)**: All required database tables (`Ambulances`, `AmbulanceCrews`, `EmergencyTrips`, `TripVitals`) and user roles (`ROLE_DISPATCHER`, `ROLE_PARAMEDIC`, `ROLE_ER_STAFF`) are implemented.
+*   **Phase 2: The "Command Center" (Dispatcher Dashboard)**: The Fleet Management Dashboard is functional, allowing for the viewing of new alerts, assignment of trips, and manual creation of alerts.
+*   **Phase 3: The "In-Field" Tool (Paramedic Mode)**: The Paramedic Mode is functional, allowing paramedics to view their assigned trip, update their status, and submit patient vitals.
+*   **Phase 4: The "Receiver" (ER Dashboard)**: The ER Dashboard is functional, displaying incoming patients and their live vitals.
+
+## Recent Fixes and Improvements
+
+The following issues have been addressed and resolved:
+
+1.  **Ambulance Status Not Updating Immediately**: After assigning a trip, the ambulance status in the Fleet Status panel was not updating in real-time. This was resolved by:
+    *   Modifying the backend to include the updated ambulance object in the `TRIP_ASSIGNED` WebSocket message.
+    *   Updating the frontend to use this WebSocket message to directly update the fleet status, eliminating the need for an extra API call and ensuring an immediate UI update.
+
+2.  **Missing "Back to Role Selection" Button**: The login pages for patients and staff were missing a button to navigate back to the main portal selection page. This has been fixed by adding a "Back" button to both the `PatientLogin.tsx` and `StaffLogin.tsx` components.
+
+3.  **No Available Ambulances for Assignment**: The dispatcher was unable to assign trips because no ambulances were available for selection. This was due to missing seed data in the database. The `hms.sql` file has been updated to include two available ambulances.
+
+The project is now in a more robust and user-friendly state.
