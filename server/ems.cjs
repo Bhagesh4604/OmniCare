@@ -837,7 +837,7 @@ router.get('/crews/my-shift', (req, res) => {
     LIMIT 1;
   `;
 
-  executeQuery(sql, [paramedicId], (err,. results) => {
+  executeQuery(sql, [paramedicId], (err, results) => {
     if (err) {
       console.error("Database error fetching paramedic's shift:", err);
       return res.status(500).json({ success: false, message: 'Failed to fetch shift.' });
