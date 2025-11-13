@@ -75,7 +75,7 @@ const AnalyticsDashboard: React.FC = () => {
       const existingData = data.find(d => d.date.slice(0, 10) === formattedDate);
       paddedData.push({
         key: date,
-        data: existingData ? existingData.count : 0,
+        data: existingData?.count || 0,
       });
     }
     return paddedData.reverse();
