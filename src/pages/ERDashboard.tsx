@@ -1,9 +1,118 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiUrl from '@/config/api';
 import useWebSocket from '../hooks/useWebSocket';
-import MapView from '../components/ems/MapView'; // Import the MapView component
-import { Sparkles } from 'lucide-react';
+import MapView from '../components/ems/MapView';
+import { Sparkles, HeartPulse, Gauge, Siren, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// --- Helper Functions & Components ---
+
+const getAcuityInfo = (acuityText) => {
+  if (!acuityText) return { level: 'N/A', color: 'bg-gray-500', textColor: 'text-white' };
+  const text = acuityText.toLowerCase();
+  if (text.includes('critical')) return { level: 'Critical', color: 'bg-black', textColor: 'text-red-400' };
+  if (text.includes('high')) return { level: 'High', color: 'bg-red-500', textColor: 'text-white' };
+  if (text.includes('moderate')) return { level: 'Moderate', color: 'bg-yellow-500', textColor: 'text-black' };
+  if (text.includes('low')) return { level: 'Low', color: 'bg-green-500', textColor: 'text-white' };
+  return { level: 'N/A', color: 'bg-gray-500', textColor: 'text-white' };
+};
+
+const TripCard = ({ trip, acuity, isGeneratingAcuity }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const acuityInfo = useMemo(() => getAcuityInfo(acuity), [acuity]);
+
+  const VitalStat = ({ icon, value, unit, label }) => (
+    <div className="flex items-center gap-2 text-sm">
+      {icon}
+      <span className="font-semibold">{value || 'N/A'}</span>
+      <span className="text-gray-400">{unit}</span>
+      <span className="text-gray-500">({label})</span>
+    </div>
+  );
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+    >
+      <div className="p-4 flex items-center gap-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+        {/* ETA */}
+        <div className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 rounded-lg p-3 w-24">
+          <span className="text-3xl font-bold text-blue-500 dark:text-blue-400">{trip.eta_minutes ?? '--'}</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">MIN ETA</span>
+        </div>
+
+        {/* Trip Info */}
+        <div className="flex-grow">
+          <div className="flex items-center gap-2">
+            <Siren className="w-5 h-5 text-red-500" />
+            <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200">{trip.vehicle_name}</h3>
+            <span className="text-xs text-gray-500">({trip.trip_id})</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Patient: {trip.patient_name || (trip.patient_firstName ? `${trip.patient_firstName} ${trip.patient_lastName}` : 'Unknown')}
+          </p>
+        </div>
+
+        {/* Acuity & Expander */}
+        <div className="flex items-center gap-4">
+          <div className={`px-3 py-1 rounded-full text-sm font-bold ${acuityInfo.color} ${acuityInfo.textColor}`}>
+            {acuityInfo.level}
+          </div>
+          <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+            <ChevronDown className="w-6 h-6 text-gray-400" />
+          </motion.div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Vitals Section */}
+              <div className="space-y-2">
+                <h4 className="font-semibold text-gray-700 dark:text-gray-300">Latest Vitals</h4>
+                {trip.latest_vitals ? (
+                  <>
+                    <VitalStat icon={<HeartPulse className="w-5 h-5 text-pink-500" />} value={trip.latest_vitals.heart_rate} unit="bpm" label="Heart Rate" />
+                    <VitalStat icon={<Gauge className="w-5 h-5 text-teal-500" />} value={`${trip.latest_vitals.blood_pressure_systolic}/${trip.latest_vitals.blood_pressure_diastolic}`} unit="mmHg" label="Blood Pressure" />
+                    <p className="text-sm text-gray-500 pt-2"><strong>Notes:</strong> {trip.latest_vitals.notes || 'None'}</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">No vitals received yet.</p>
+                )}
+              </div>
+
+              {/* AI Assessment Section */}
+              <div className="p-3 rounded-md bg-purple-50 dark:bg-purple-900/20">
+                <h4 className="font-semibold mb-2 flex items-center gap-2 text-purple-800 dark:text-purple-300">
+                  <Sparkles size={18} /> AI Acuity Assessment
+                </h4>
+                {isGeneratingAcuity && <p className="text-sm animate-pulse">Generating assessment...</p>}
+                {acuity && (
+                  <div className="text-sm whitespace-pre-wrap font-mono text-gray-700 dark:text-gray-300">
+                    {acuity}
+                  </div>
+                )}
+                {!isGeneratingAcuity && !acuity && <p className="text-sm text-gray-500">Waiting for vitals to generate assessment.</p>}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
+
 
 // Define a hardcoded location for the hospital
 const HOSPITAL_LOCATION = { lat: 12.9716, lng: 77.5946 }; // Example: Bangalore
@@ -172,63 +281,50 @@ const ERDashboard = () => {
     return acc;
   }, {});
 
+  const sortedTrips = useMemo(() => {
+    return [...transportingTrips].sort((a, b) => {
+      const etaA = a.eta_minutes ?? Infinity;
+      const etaB = b.eta_minutes ?? Infinity;
+      return etaA - etaB;
+    });
+  }, [transportingTrips]);
+
   return (
-    <div className="p-8 bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+    <div className="p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">ER Pre-Arrival Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">ER Pre-Arrival Dashboard</h1>
       </div>
 
-      <div className="w-full h-96 mb-8 rounded-lg overflow-hidden shadow-lg">
+      <div className="w-full h-64 sm:h-80 md:h-96 mb-8 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700">
         <MapView ambulanceLocations={ambulanceLocations} destinations={hospitalDestinations} />
       </div>
 
-      {loadingTrips ? (
-        <div className="text-center text-lg">Loading incoming trips...</div>
-      ) : errorTrips ? (
-        <div className="text-center text-lg text-red-500">Error: {errorTrips}</div>
-      ) : transportingTrips.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {transportingTrips.map(trip => (
-            <div key={trip.trip_id} className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 flex flex-col">
-              <h2 className="text-2xl font-semibold mb-3">Trip ID: {trip.trip_id}</h2>
-              <p className="text-lg mb-1"><strong>Status:</strong> {trip.status}</p>
-              <p className="text-lg mb-1"><strong>Assigned Ambulance:</strong> {trip.vehicle_name} ({trip.license_plate})</p>
-              <p className="text-lg mb-3 font-bold text-blue-400">{trip.eta_minutes ? `ETA: ${trip.eta_minutes} mins` : 'ETA: Calculating...'}</p>
-
-              <div className="mt-4 p-3 border border-gray-200 dark:border-gray-700 rounded-md">
-                <h3 className="text-xl font-semibold mb-2">Latest Vitals</h3>
-                {trip.latest_vitals ? (
-                  <>
-                    <p className="text-base"><strong>Heart Rate:</strong> {trip.latest_vitals.heart_rate || 'N/A'} bpm</p>
-                    <p className="text-base"><strong>Blood Pressure:</strong> {trip.latest_vitals.blood_pressure_systolic || 'N/A'}/{trip.latest_vitals.blood_pressure_diastolic || 'N/A'} mmHg</p>
-                    <p className="text-base"><strong>Notes:</strong> {trip.latest_vitals.notes || 'N/A'}</p>
-                    <p className="text-sm text-gray-500">Last updated: {new Date(trip.latest_vitals.timestamp).toLocaleTimeString()}</p>
-                  </>
-                ) : (
-                  <p className="text-base">No vitals received yet.</p>
-                )}
-              </div>
-
-              <div className="mt-4 p-3 border border-purple-200 dark:border-purple-700 rounded-md bg-purple-50 dark:bg-purple-900/20 flex-grow">
-                <h3 className="text-xl font-semibold mb-2 flex items-center gap-2 text-purple-800 dark:text-purple-300">
-                  <Sparkles size={20} /> AI Acuity Assessment
-                </h3>
-                {generatingAcuity[trip.trip_id] && <p className="text-base animate-pulse">Generating assessment...</p>}
-                {tripAcuity[trip.trip_id] && (
-                  <div className="text-base whitespace-pre-wrap font-mono">
-                    {tripAcuity[trip.trip_id]}
-                  </div>
-                )}
-                {!generatingAcuity[trip.trip_id] && !tripAcuity[trip.trip_id] && <p className="text-base text-gray-500">Waiting for vitals to generate assessment.</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center text-lg text-gray-600 dark:text-gray-400">
-          No transporting emergency trips currently.
-        </div>
-      )}
+      <div className="max-w-7xl mx-auto w-full">
+        {loadingTrips ? (
+          <div className="text-center text-lg">Loading incoming trips...</div>
+        ) : errorTrips ? (
+          <div className="text-center text-lg text-red-500">Error: {errorTrips}</div>
+        ) : sortedTrips.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <AnimatePresence>
+              {sortedTrips.map(trip => (
+                <TripCard 
+                  key={trip.trip_id} 
+                  trip={trip} 
+                  acuity={tripAcuity[trip.trip_id]}
+                  isGeneratingAcuity={generatingAcuity[trip.trip_id]}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <div className="text-center text-lg text-gray-600 dark:text-gray-400 mt-16">
+            <Siren className="w-16 h-16 mx-auto text-gray-400" />
+            <h3 className="mt-4 text-xl font-semibold">No Incoming Patients</h3>
+            <p className="mt-1 text-sm">The dashboard is clear. Waiting for new transporting trips.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
