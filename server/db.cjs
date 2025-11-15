@@ -32,6 +32,7 @@ const executeQuery = (query, params, callback) => {
         console.error('Query:', query);
         console.error('Params:', params);
         console.error('Error:', err);
+        console.error('Stack:', new Error().stack);
         console.error('--- END DATABASE QUERY ERROR ---');
       }
       

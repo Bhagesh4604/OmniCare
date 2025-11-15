@@ -604,7 +604,7 @@ router.post('/trips/complete', async (req, res) => {
     });
 
     // Broadcast WebSocket message
-    broadcast(req.wss, { type: 'TRIP_COMPLETED', payload: { trip_id, ambulance: updatedambulance } });
+    broadcast(req.wss, { type: 'TRIP_COMPLETED', payload: { trip_id, ambulance: updatedAmbulance } });
 
     res.json({ success: true, message: 'Trip completed successfully!' });
 
