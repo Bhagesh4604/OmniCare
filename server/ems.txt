@@ -199,8 +199,8 @@ router.get('/trips/active', (req, res) => {
       et.*, 
       a.vehicle_name, 
       a.license_plate,
-      (SELECT alh.latitude FROM ambulanceLocationHistory alh WHERE alh.ambulance_id = et.assigned_ambulance_id ORDER BY alh.timestamp DESC LIMIT 1) as last_latitude,
-      (SELECT alh.longitude FROM ambulanceLocationHistory alh WHERE alh.ambulance_id = et.assigned_ambulance_id ORDER BY alh.timestamp DESC LIMIT 1) as last_longitude
+      (SELECT alh.latitude FROM ambulancelocationhistory alh WHERE alh.ambulance_id = et.assigned_ambulance_id ORDER BY alh.timestamp DESC LIMIT 1) as last_latitude,
+      (SELECT alh.longitude FROM ambulancelocationhistory alh WHERE alh.ambulance_id = et.assigned_ambulance_id ORDER BY alh.timestamp DESC LIMIT 1) as last_longitude
     FROM emergencytrips et
     LEFT JOIN ambulances a ON et.assigned_ambulance_id = a.ambulance_id
     WHERE et.status IN ('Assigned', 'En_Route_To_Scene', 'At_Scene', 'Transporting')
@@ -282,7 +282,7 @@ router.post('/trips/assign', async (req, res) => {
     });
 
     // Fetch the last known location of the assigned ambulance
-    const getLastLocationSql = `SELECT latitude, longitude FROM ambulanceLocationHistory WHERE ambulance_id = ? ORDER BY timestamp DESC LIMIT 1`;
+    const getLastLocationSql = `SELECT latitude, longitude FROM ambulancelocationhistory WHERE ambulance_id = ? ORDER BY timestamp DESC LIMIT 1`;
     const lastLocation = await new Promise((resolve, reject) => {
       executeQuery(getLastLocationSql, [ambulance_id], (err, result) => {
         if (err) return reject(err);
@@ -448,7 +448,7 @@ router.post('/vitals', (req, res) => {
 
   const timestamp = new Date();
   const newVitals = { trip_id, timestamp, heart_rate, blood_pressure_systolic, blood_pressure_diastolic, notes };
-  const sql = `INSERT INTO TripVitals (trip_id, timestamp, heart_rate, blood_pressure_systolic, blood_pressure_diastolic, notes) VALUES (?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO tripvitals (trip_id, timestamp, heart_rate, blood_pressure_systolic, blood_pressure_diastolic, notes) VALUES (?, ?, ?, ?, ?, ?)`;
   
   executeQuery(sql, [trip_id, timestamp, heart_rate, blood_pressure_systolic, blood_pressure_diastolic, notes], (err, results) => {
     if (err) {
@@ -517,7 +517,7 @@ router.post('/trips/status', async (req, res) => {
     const updatedTrip = trips[0];
 
     // Also fetch the last known location to send with the update
-    const getLastLocationSql = `SELECT latitude, longitude FROM ambulanceLocationHistory WHERE ambulance_id = ? ORDER BY timestamp DESC LIMIT 1`;
+    const getLastLocationSql = `SELECT latitude, longitude FROM ambulancelocationhistory WHERE ambulance_id = ? ORDER BY timestamp DESC LIMIT 1`;
     const lastLocation = await new Promise((resolve, reject) => {
       executeQuery(getLastLocationSql, [updatedTrip.assigned_ambulance_id], (err, result) => {
         if (err) return reject(err);
@@ -640,7 +640,7 @@ router.get('/trips/transporting', (req, res) => {
             'notes', tv.notes
           )
         FROM
-          TripVitals tv
+          tripvitals tv
         WHERE
           tv.trip_id = et.trip_id
 D        ORDER BY
@@ -679,7 +679,7 @@ router.post('/ambulance/location', (req, res) => {
   }
 
   // Store this location data in a database table (e.g., mbulanceLocationHistory)
-  const insertLocationSql = `INSERT INTO ambulanceLocationHistory (ambulance_id, latitude, longitude, timestamp) VALUES (?, ?, ?, ?)`;
+  const insertLocationSql = `INSERT INTO ambulancelocationhistory (ambulance_id, latitude, longitude, timestamp) VALUES (?, ?, ?, ?)`;
   executeQuery(insertLocationSql, [ambulance_id, latitude, longitude, timestamp], (err, results) => {
     if (err) {
       console.error("Database error storing ambulance location:", err);
@@ -741,7 +741,7 @@ router.post('/paramedic/register-device', (req, res) => {
   }
 
   // Check if token already exists for this employee or as a standalone token
-  const checkSql = 'SELECT * FROM ParamedicDeviceTokens WHERE employee_id = ? OR device_token = ?';
+  const checkSql = 'SELECT * FROM paramedicdevicetokens WHERE employee_id = ? OR device_token = ?';
   executeQuery(checkSql, [employeeId, deviceToken], (checkErr, checkResults) => {
     if (checkErr) {
       console.error("Database error checking device token:", checkErr);
@@ -751,7 +751,7 @@ router.post('/paramedic/register-device', (req, res) => {
     if (checkResults.length > 0) {
       // If token exists for this employee, update it. If token exists for another employee, update it.
       // This logic assumes a device token should be unique and associated with one employee at a time.
-      const updateSql = 'UPDATE ParamedicDeviceTokens SET device_token = ?, employee_id = ? WHERE id = ?';
+      const updateSql = 'UPDATE paramedicdevicetokens SET device_token = ?, employee_id = ? WHERE id = ?';
       const existingEntry = checkResults[0];
       executeQuery(updateSql, [deviceToken, employeeId, existingEntry.id], (updateErr) => {
         if (updateErr) {
@@ -762,7 +762,7 @@ router.post('/paramedic/register-device', (req, res) => {
       });
     } else {
       // Insert new token
-      const insertSql = 'INSERT INTO ParamedicDeviceTokens (employee_id, device_token) VALUES (?, ?)';
+      const insertSql = 'INSERT INTO paramedicdevicetokens (employee_id, device_token) VALUES (?, ?)';
       executeQuery(insertSql, [employeeId, deviceToken], (insertErr) => {
         if (insertErr) {
           console.error("Database error inserting device token:", insertErr);

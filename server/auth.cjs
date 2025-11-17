@@ -45,7 +45,7 @@ router.post('/staff/login', (req, res) => {
         
         // If the user is a paramedic, fetch their assigned ambulance_id
         if (user.role === 'ROLE_PARAMEDIC') {
-          const ambulanceSql = 'SELECT ambulance_id FROM AmbulanceCrews WHERE user_id = ?';
+          const ambulanceSql = 'SELECT ambulance_id FROM ambulancecrews WHERE user_id = ?';
           executeQuery(ambulanceSql, [user.id], (ambErr, ambResults) => {
             if (ambErr) {
               console.error("Database error fetching ambulance_id for paramedic:", ambErr);
