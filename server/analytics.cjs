@@ -24,8 +24,20 @@ router.get('/summary', async (req, res) => {
         newPatientsToday: `SELECT COUNT(id) as count FROM admissions WHERE DATE(admissionDate) = ?`,
         appointmentsToday: `SELECT COUNT(id) as count FROM appointments WHERE DATE(appointmentDate) = ?`,
         bedOccupancy: `SELECT SUM(CASE WHEN status = 'occupied' THEN 1 ELSE 0 END) as occupied, COUNT(id) as total FROM beds`,
-        totalRevenue: `SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid'`,
-        revenueToday: `SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid' AND DATE(dueDate) = ?`,
+        totalRevenue: `
+            SELECT SUM(total) as total FROM (
+                SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid'
+                UNION ALL
+                SELECT COALESCE(SUM(totalAmount), 0) as total FROM patient_bills WHERE status = 'paid'
+            ) as combined_total
+        `,
+        revenueToday: `
+            SELECT SUM(total) as total FROM (
+                SELECT COALESCE(SUM(amount), 0) as total FROM accounts_receivable WHERE paymentStatus = 'paid' AND DATE(dueDate) = ?
+                UNION ALL
+                SELECT COALESCE(SUM(totalAmount), 0) as total FROM patient_bills WHERE status = 'paid' AND DATE(billDate) = ?
+            ) as combined_today
+        `,
     };
 
     const params = {
@@ -35,7 +47,7 @@ router.get('/summary', async (req, res) => {
         appointmentsToday: [today],
         bedOccupancy: [],
         totalRevenue: [],
-        revenueToday: [today],
+        revenueToday: [today, today],
     };
 
     const summaryData = {};
@@ -64,9 +76,15 @@ router.get('/summary', async (req, res) => {
 router.get('/', (req, res) => {
     const queries = {
         monthlyRevenue: `
-            SELECT DATE_FORMAT(dueDate, '%Y-%m') as month, SUM(amount) as total
-            FROM accounts_receivable 
-            WHERE paymentStatus = 'paid'
+            SELECT month, SUM(total) as total FROM (
+                SELECT DATE_FORMAT(dueDate, '%Y-%m') as month, amount as total
+                FROM accounts_receivable 
+                WHERE paymentStatus = 'paid'
+                UNION ALL
+                SELECT DATE_FORMAT(billDate, '%Y-%m') as month, totalAmount as total
+                FROM patient_bills
+                WHERE status = 'paid'
+            ) as combined_revenue
             GROUP BY month 
             ORDER BY month ASC
             LIMIT 12;

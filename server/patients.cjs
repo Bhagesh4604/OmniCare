@@ -200,11 +200,17 @@ router.get('/:patientId/full-history', async (req, res) => {
         // Fetch billing history (accounts receivable)
         const billingHistory = await new Promise((resolve, reject) => {
             const sql = `
-                SELECT ar.dueDate as date, ar.invoiceNumber, ar.amount, ar.paymentStatus, ar.description
-                FROM accounts_receivable ar
-                WHERE ar.patientId = ?
+                SELECT date, invoiceNumber, amount, paymentStatus, description FROM (
+                    SELECT dueDate as date, invoiceNumber, amount, paymentStatus, description
+                    FROM accounts_receivable
+                    WHERE patientId = ?
+                    UNION ALL
+                    SELECT billDate as date, billNumber as invoiceNumber, totalAmount as amount, status as paymentStatus, notes as description
+                    FROM patient_bills
+                    WHERE patientId = ?
+                ) as combined_bills
             `;
-            executeQuery(sql, [patientDbId], (err, results) => {
+            executeQuery(sql, [patientDbId, patientDbId], (err, results) => {
                 if (err) return reject(err);
                 resolve(results.map(item => ({ type: 'bill', date: item.date, details: item })));
             });
