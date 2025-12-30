@@ -72,7 +72,7 @@ export default function UploadReport({ onClose, onSave }: UploadReportProps) {
                     <div className="p-6 border-b border-gray-800 flex justify-between items-center">
                         <h2 className="text-2xl font-bold flex items-center gap-2">
                             <Upload className="text-blue-500" />
-                            Upload & Analyze Report
+                            Understand My Medical Report
                         </h2>
                         <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                             <X size={24} />
@@ -128,7 +128,7 @@ export default function UploadReport({ onClose, onSave }: UploadReportProps) {
                                             </>
                                         ) : (
                                             <>
-                                                <FileText /> Extract Data
+                                                <FileText /> Read My Report
                                             </>
                                         )}
                                     </button>
@@ -146,7 +146,7 @@ export default function UploadReport({ onClose, onSave }: UploadReportProps) {
 
                                 {!healthPlan && (
                                     <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                                        <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Raw Extracted Text</h3>
+                                        <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Report Content</h3>
                                         <div className="text-gray-300 text-sm whitespace-pre-wrap max-h-40 overflow-y-auto p-2 bg-black/20 rounded">
                                             {result.text}
                                         </div>

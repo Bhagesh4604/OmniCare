@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search } from 'lucide-react';
+import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { zonedTimeToUtc, format } from 'date-fns-tz';
 import { useNavigate } from 'react-router-dom';
@@ -11,8 +11,51 @@ import TriageChatModal from '../TriageChatModal';
 import HealthTimeline from './HealthTimeline';
 import MedicationTracker from './MedicationTracker';
 import HeartHealthDashboard from '../../pages/HeartHealthDashboard'; // Import new module
+import UploadReport from '../UploadReport';
 
 import NewSidebar from '../NewSidebar';
+
+// --- ANIMATIONS & STYLES ---
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+};
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 100 }
+    }
+};
+
+const GlassCard = ({ children, className = "", onClick }) => (
+    <motion.div
+        variants={itemVariants}
+        whileHover={onClick ? { scale: 1.02 } : {}}
+        whileTap={onClick ? { scale: 0.98 } : {}}
+        onClick={onClick}
+        className={`relative overflow-hidden rounded-2xl bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-lg ${className}`}
+    >
+        {children}
+    </motion.div>
+);
+
+const StatCard = ({ title, value, icon: Icon, colorClass = "text-blue-500", bgClass = "bg-blue-500/10" }) => (
+    <GlassCard className="p-6 flex items-center justify-between group">
+        <div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{title}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:bg-clip-text group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-cyan-500 transition-all">{value}</p>
+        </div>
+        <div className={`p-4 rounded-xl ${bgClass} group-hover:scale-110 transition-transform duration-300`}>
+            <Icon className={`${colorClass}`} size={24} />
+        </div>
+    </GlassCard>
+);
 
 
 export default function PatientDashboard({ patient, onLogout, updateUser }) {
@@ -26,6 +69,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const [labResults, setLabResults] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [showModal, setShowModal] = useState(null);
+    const [showUploadModal, setShowUploadModal] = useState(false);
     const navigate = useNavigate();
 
     // Refactored state for appointment booking
@@ -34,6 +78,21 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const [bookingSlot, setBookingSlot] = useState('');
 
     const fileInputRef = useRef(null);
+
+    const handleUploadSuccess = (data) => {
+        // Mock saving to local state for instant feedback
+        const newRecord = {
+            recordId: Date.now(),
+            diagnosis: "Uploaded Report",
+            doctorName: "AI Analysis",
+            recordDate: new Date().toISOString(),
+            treatment: data.healthPlan?.summary || "Report analyzed by AI",
+            notes: "Uploaded via Patient Portal"
+        };
+        setRecords([newRecord, ...records]);
+        setShowUploadModal(false);
+        alert("Report uploaded and analyzed successfully!");
+    };
     const [showTriageModal, setShowTriageModal] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [summaryContent, setSummaryContent] = useState('');
@@ -196,49 +255,9 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const nextAppointment = appointments.find(a => new Date(a.appointmentDate) > new Date() && a.status === 'scheduled');
 
 
-    // --- ANIMATIONS & STYLES ---
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
-    };
+    // --- ANIMATIONS & STYLES --- (Moved outside)
 
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: { type: "spring", stiffness: 100 }
-        }
-    };
-
-    const GlassCard = ({ children, className = "", onClick }) => (
-        <motion.div
-            variants={itemVariants}
-            whileHover={onClick ? { scale: 1.02 } : {}}
-            whileTap={onClick ? { scale: 0.98 } : {}}
-            onClick={onClick}
-            className={`relative overflow-hidden rounded-2xl bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-lg ${className}`}
-        >
-            {children}
-        </motion.div>
-    );
-
-    const StatCard = ({ title, value, icon: Icon, colorClass = "text-blue-500", bgClass = "bg-blue-500/10" }) => (
-        <GlassCard className="p-6 flex items-center justify-between group">
-            <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{title}</p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:bg-clip-text group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-cyan-500 transition-all">{value}</p>
-            </div>
-            <div className={`p-4 rounded-xl ${bgClass} group-hover:scale-110 transition-transform duration-300`}>
-                <Icon className={`${colorClass}`} size={24} />
-            </div>
-        </GlassCard>
-    );
-
-    const DashboardContent = () => (
+    const dashboardJSX = (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
             {/* Wellness Greeting */}
             <motion.div variants={itemVariants} className="relative p-8 rounded-3xl overflow-hidden bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-2xl">
@@ -398,7 +417,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const renderContent = () => {
         switch (activeTab) {
             case 'dashboard':
-                return <DashboardContent />;
+                return dashboardJSX;
             case 'appointments':
                 return (
                     <div className="space-y-6">
@@ -445,9 +464,14 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                             <h2 className="text-3xl font-bold dark:text-white">Medical History</h2>
-                            <Button onClick={handleSummarizeHistory} className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0">
-                                <Sparkles className="mr-2 h-4 w-4" /> Summarize with AI
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button onClick={() => setShowUploadModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
+                                    <Upload size={18} /> Upload Report
+                                </Button>
+                                <Button onClick={handleSummarizeHistory} className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0">
+                                    <Sparkles className="mr-2 h-4 w-4" /> Summarize with AI
+                                </Button>
+                            </div>
                         </div>
                         {records.length > 0 ? (
                             <div className="grid gap-4">
@@ -544,7 +568,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </div>
                 );
             default:
-                return <DashboardContent />;
+                return dashboardJSX;
         }
     };
 
@@ -686,6 +710,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             </AnimatePresence>
 
             {showTriageModal && <TriageChatModal onClose={() => setShowTriageModal(false)} />}
+            {showUploadModal && <UploadReport onClose={() => setShowUploadModal(false)} onSave={handleUploadSuccess} />}
 
             {/* Summary Modal with Glassmorphism */}
             <AnimatePresence>
