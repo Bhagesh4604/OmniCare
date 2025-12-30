@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, Move } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VoiceController() {
@@ -31,34 +31,38 @@ export default function VoiceController() {
         }
     };
 
-    // if (connectionStatus === 'offline') return null; // allow rendering even if offline so user sees the yellow dot
-
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        <motion.div
+            drag
+            dragMomentum={false}
+            className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-2"
+        >
             <AnimatePresence>
                 {transcript && isListening && (
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0 }}
-                        className="bg-black/80 backdrop-blur text-white px-4 py-2 rounded-lg text-sm mb-2"
+                        className="bg-black/80 backdrop-blur text-white px-4 py-2 rounded-lg text-sm mb-2 pointer-events-none"
                     >
                         "{transcript}"
                     </motion.div>
                 )}
             </AnimatePresence>
 
+            {/* Draggable Handle / Button Wrapper */}
             <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
+                onPointerDown={(e) => e.stopPropagation()} // Prevent drag when clicking button? Actually drag works fine with button usually.
                 onClick={toggleListening}
                 className={`p-4 rounded-full shadow-lg transition-colors flex items-center justify-center relative ${isListening
                         ? 'bg-red-500 text-white animate-pulse shadow-red-500/50'
                         : agentSpeaking
                             ? 'bg-purple-600 text-white animate-bounce shadow-purple-500/50' // AI Speaking
-                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/50'
+                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/50 cursor-move'
                     }`}
-                title="Azure AI Voice Control"
+                title="Azure AI Voice Control (Drag to Move)"
             >
                 {agentSpeaking ? (
                     <div className="flex gap-1">
@@ -77,6 +81,6 @@ export default function VoiceController() {
                         }`}
                 />
             </motion.button>
-        </div>
+        </motion.div>
     );
 }
