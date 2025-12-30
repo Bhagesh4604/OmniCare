@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "node server/index.cjs"
+    "server": "node server/index.cjs",
+    "check-features": "node check-features-status.js",
+    "migrate-ai-triage": "node server/migrations/run_ai_triage_migration.cjs"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
