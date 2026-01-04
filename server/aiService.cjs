@@ -263,9 +263,26 @@ router.post('/analyze-dermatology', upload.single('image'), async (req, res) => 
 
   let rawResponse;
   try {
+    console.log("🔍 Attempting Azure AI Vision analysis...");
+    console.log("Endpoint:", process.env.AZURE_OPENAI_ENDPOINT ? "✅ Present" : "❌ Missing");
+    console.log("API Key:", process.env.AZURE_OPENAI_API_KEY ? "✅ Present" : "❌ Missing");
+    console.log("Deployment:", process.env.AZURE_OPENAI_DEPLOYMENT_ID || "gpt-4o (default)");
+
     rawResponse = await runAzureOpenAI("Analyze this skin lesion image.", systemPrompt, base64Image);
+
+    // Check if response is mock data
+    if (rawResponse && rawResponse.includes("MOCK DATA")) {
+      console.warn("⚠️ Received mock data from Azure AI - credentials may be invalid");
+      console.warn("Please check your .env file for valid AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY");
+    } else {
+      console.log("✅ Real Azure AI Vision analysis completed");
+    }
   } catch (error) {
-    console.error("AI Vision Failed, using mock:", error.message);
+    console.error("❌ AI Vision Failed:");
+    console.error("Error Type:", error.name);
+    console.error("Error Message:", error.message);
+    console.error("Stack:", error.stack);
+
     // Fallback Mock Response for Demo stability
     rawResponse = JSON.stringify({
       riskLevel: "High",
@@ -273,7 +290,7 @@ router.post('/analyze-dermatology', upload.single('image'), async (req, res) => 
       findings: ["Irregular border identified", "Color variation present", "Asymmetry detected"],
       summary: "Visual analysis suggests characteristics consistent with dysplastic nevi. While not definitive for melanoma, professional dermatoscopic evaluation is recommended.",
       recommendations: ["Consult Dermatologist", "Schedule Biopsy", "Monitor for changes"],
-      disclaimer: "MOCK DATA - AI Service Unavailable"
+      disclaimer: "⚠️ MOCK DATA - AI Service Error: " + error.message
     });
   }
 
