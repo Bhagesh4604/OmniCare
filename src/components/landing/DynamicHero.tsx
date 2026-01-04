@@ -71,12 +71,12 @@ export const DynamicHero = () => {
                 </p>
 
                 <div className="flex justify-center gap-4 mb-20">
-                    <button className="px-8 py-3 bg-white text-slate-900 rounded-full font-bold hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                        App Store
-                    </button>
-                    <button className="px-8 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white rounded-full font-bold hover:bg-white/10 transition-colors shadow-lg">
-                        Google Play
-                    </button>
+                    <div className="px-8 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white rounded-full font-bold shadow-lg">
+                        🏥 Smart Healthcare
+                    </div>
+                    <div className="px-8 py-3 bg-white/5 backdrop-blur-md border border-white/20 text-white rounded-full font-bold shadow-lg">
+                        🤖 AI-Powered
+                    </div>
                 </div>
 
                 {/* Main Visual Composition */}
@@ -136,11 +136,11 @@ export const DynamicHero = () => {
                             layout
                             className="absolute left-0 top-1/2 -translate-y-1/2 w-64 bg-white/5 backdrop-blur-3xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.2)] text-left"
                         >
-                            <div className="flex gap-1 text-yellow-400 mb-2">
-                                {'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}
+                            <div className="flex gap-1 text-cyan-400 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-widest">Innovation</span>
                             </div>
-                            <div className="text-3xl font-bold text-white">4.9/5</div>
-                            <div className="text-sm text-slate-300 font-medium">Trusted by millions</div>
+                            <div className="text-xl font-bold text-white leading-tight">Next-Gen <br /> Healthcare</div>
+                            <div className="text-sm text-slate-300 font-medium mt-2">Azure Cloud Native</div>
                         </motion.div>
                     </div>
                 </div>
