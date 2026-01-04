@@ -11,7 +11,7 @@ import { HealthIdentityCard, PhoneMockup, TestimonialCard } from '@/components/l
 import { ParallaxScroll } from '@/components/landing/ParallaxScroll';
 import { InfiniteMarquee } from '@/components/landing/InfiniteMarquee';
 import { WhatsAppShowcase } from '@/components/landing/WhatsAppShowcase';
-// import { DynamicHero } from '@/components/landing/DynamicHero'; // Replaced with inline premium hero
+import { DynamicHero } from '@/components/landing/DynamicHero';
 import TriageChatModal from '@/components/TriageChatModal';
 import { HorizontalScrollFeatures } from '@/components/landing/HorizontalScrollFeatures';
 import { HealthInsightsSection } from '@/components/landing/HealthInsightsSection';
@@ -55,64 +55,6 @@ const Navbar = () => {
     );
 };
 
-const PremiumHero = () => {
-    return (
-        <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute inset-0 bg-slate-50 dark:bg-black">
-                <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                <div className="absolute top-0 -right-4 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-                <div className="absolute -bottom-8 left-20 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-            </div>
-
-            <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <span className="inline-block py-1 px-3 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-sm font-semibold mb-6 animate-pulse">
-                        ✨ Recall the Future of Healthcare
-                    </span>
-                    <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 dark:text-white mb-8 leading-tight">
-                        Health. <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-blue-500 to-purple-500 animate-gradient-animation">Reimagined.</span>
-                    </h1>
-                    <p className="text-xl md:text-2xl text-slate-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
-                        Experience the first <span className="font-bold text-slate-900 dark:text-white">AI-Native Hospital System</span>. Real-time diagnostics, digital twins, and seamless care—all in one premium platform.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <Button className="h-14 px-8 text-lg rounded-full bg-slate-900 dark:bg-white text-white dark:text-black hover:scale-105 transition-transform shadow-2xl shadow-teal-500/20">
-                            Start Evaluation
-                        </Button>
-                        <Button variant="outline" className="h-14 px-8 text-lg rounded-full border-2 hover:bg-slate-100 dark:hover:bg-white/10">
-                            <Play className="mr-2 w-5 h-5 fill-current" /> Watch Verify Demo
-                        </Button>
-                    </div>
-                </motion.div>
-
-                {/* Floating Elements */}
-                <motion.div
-                    animate={{ y: [0, -20, 0] }}
-                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-1/2 -right-20 hidden lg:block"
-                >
-                    <div className="glass-panel p-4 rounded-2xl flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-                            <Heart className="text-green-500 fill-green-500" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500">Heart Rate</p>
-                            <p className="font-bold">72 BPM</p>
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
-        </section>
-    );
-}
-
 export default function LandingPage() {
     const navigate = useNavigate();
     const [showTriageModal, setShowTriageModal] = useState(false);
@@ -120,10 +62,12 @@ export default function LandingPage() {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-black font-sans selection:bg-teal-500/30">
             <Navbar />
-            <PremiumHero />
+
+            {/* Restored Dynamic Hero */}
+            <DynamicHero />
 
             {/* Existing Components with Wrapper for Spacing */}
-            <div className="relative z-20 bg-white dark:bg-black rounded-[3rem] -mt-20 shadow-[0_-20px_60px_rgba(0,0,0,0.1)] pt-20">
+            <div className="relative z-20 bg-white dark:bg-black rounded-[3rem] -mt-10 shadow-[0_-20px_60px_rgba(0,0,0,0.1)] pt-20">
                 <HorizontalScrollFeatures />
                 <ScrollingFeatureShowcase onOpenTriage={() => setShowTriageModal(true)} />
                 <WhatsAppShowcase />
