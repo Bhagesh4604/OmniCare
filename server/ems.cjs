@@ -323,14 +323,20 @@ router.post('/patient/book-ambulance', async (req, res) => {
       });
     });
 
-    // 4. Broadcast Update
-    broadcast(req.wss, {
-      type: 'TRIP_ASSIGNED',
-      payload: {
-        trip: { trip_id, eta_minutes: eta, status: 'Assigned' },
-        ambulance: bestAmbulance
+    // 4. Broadcast Update (with error handling)
+    try {
+      if (req.wss) {
+        broadcast(req.wss, {
+          type: 'TRIP_ASSIGNED',
+          payload: {
+            trip: { trip_id, eta_minutes: eta, status: 'Assigned' },
+            ambulance: bestAmbulance
+          }
+        });
       }
-    });
+    } catch (broadcastError) {
+      console.error("Broadcast error (non-critical):", broadcastError);
+    }
 
     res.json({
       success: true,
@@ -342,7 +348,7 @@ router.post('/patient/book-ambulance', async (req, res) => {
 
   } catch (error) {
     console.error("Auto-dispatch error:", error);
-    res.status(500).json({ success: false, message: 'Auto-dispatch failed' });
+    res.status(500).json({ success: false, message: 'Auto-dispatch failed', error: error.message });
   }
 });
 
