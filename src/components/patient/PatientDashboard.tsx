@@ -292,12 +292,12 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
             <div className="grid grid-cols-1 gap-6">
                 {/* Greeting Banner */}
-                <motion.div variants={itemVariants} className="relative p-10 rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-2xl border border-white/10">
+                <motion.div variants={itemVariants} className="relative p-6 md:p-10 rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-2xl border border-white/10">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] animate-pulse"></div>
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-3 tracking-tight">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {patient?.firstName}</h1>
-                            <p className="text-indigo-200 text-lg max-w-2xl font-light">Your health metrics are stable. You have <span className="font-bold text-white">{appointments.filter(a => new Date(a.appointmentDate) > new Date()).length} upcoming</span> activities.</p>
+                            <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {patient?.firstName}</h1>
+                            <p className="text-indigo-200 text-base md:text-lg max-w-2xl font-light">Your health metrics are stable. You have <span className="font-bold text-white">{appointments.filter(a => new Date(a.appointmentDate) > new Date()).length} upcoming</span> activities.</p>
                         </div>
                         <div className="flex gap-3">
                             <Button onClick={() => setShowUploadModal(true)} className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/20 rounded-xl h-12 px-6">
@@ -402,7 +402,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard title="Total Visits" value={appointments.length} icon={Calendar} colorClass="text-blue-400" bgClass="bg-blue-500/20" />
                 <StatCard title="Test Results" value={labResults.length} icon={Beaker} colorClass="text-teal-400" bgClass="bg-teal-500/20" />
                 <StatCard title="Bills Due" value={`$${billing.filter(b => b.paymentStatus !== 'paid').reduce((acc, curr) => acc + curr.amount, 0)}`} icon={DollarSign} colorClass="text-amber-400" bgClass="bg-amber-500/20" />
@@ -599,7 +599,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             <AnimatePresence>
                 {showModal === 'bookAppointment' && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4">
-                        <div className="bg-[#1c1c1e] w-full max-w-lg rounded-3xl p-8 border border-white/10 shadow-2xl relative">
+                        <div className="bg-[#1c1c1e] w-[95%] max-w-lg rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl relative max-h-[90vh] overflow-y-auto">
                             <button onClick={() => setShowModal(null)} className="absolute top-4 right-4 p-2 bg-white/10 rounded-full"><X size={18} /></button>
                             <h2 className="text-2xl font-bold text-white mb-6">Book Appointment</h2>
                             <form onSubmit={handleBookAppointment} className="space-y-6">
@@ -621,16 +621,16 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 {bookingDate && (
                                     <div className="grid grid-cols-3 gap-2">
                                         {availableSlots.length > 0 ? (
-                                            availableSlots.map((slot: any) => (
+                                            availableSlots.map((slot: string) => (
                                                 <div
-                                                    key={slot.startTime} // Assuming slot has startTime
-                                                    onClick={() => setBookingSlot(slot.startTime)}
-                                                    className={`p-2 rounded-lg text-xs text-center border cursor-pointer ${bookingSlot === slot.startTime
-                                                            ? 'bg-blue-600 border-blue-500 text-white'
-                                                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                    key={slot}
+                                                    onClick={() => setBookingSlot(slot)}
+                                                    className={`p-2 rounded-lg text-xs text-center border cursor-pointer ${bookingSlot === slot
+                                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                                        : 'bg-white/5 border-white/10 hover:bg-white/10'
                                                         }`}
                                                 >
-                                                    {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    {new Date(slot).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </div>
                                             ))
                                         ) : (
