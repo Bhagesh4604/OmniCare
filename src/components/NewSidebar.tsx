@@ -92,7 +92,7 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
     { id: 'inventory', label: 'Inventory', icon: Package },
     { id: 'early-detection', label: 'Early Detection', icon: Microscope },
     { id: 'sms', label: 'SMS & Reports', icon: MessageSquare },
-    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
+
     directionsMenuItem,
   ];
 
@@ -108,7 +108,7 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
     { id: 'laboratory', label: 'Laboratory', icon: Activity },
     { id: 'medical-records', label: 'Medical Records', icon: FileText },
     { id: 'surgical', label: 'Surgical', icon: Scissors }, // Updated from Scissor
-    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
+
     directionsMenuItem,
   ];
 

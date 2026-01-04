@@ -41,7 +41,7 @@ import IoTDeviceSimulator from './pages/IoTDeviceSimulator'; // IoT Simulator
 
 
 
-import WhatsAppSimulator from './components/admin/WhatsAppSimulator'; // WhatsApp Simulator
+
 import AuroraDemo from './pages/AuroraDemo'; // Demo for Aurora Background
 import MedicineVerifier from './components/blockchain/MedicineVerifier'; // New Blockchain Verifier
 import SmartPrescription from './components/SmartPrescription'; // New Smart Contract Feature
@@ -110,7 +110,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({ user, onLogout, updat
       case 'appointments': return <AppointmentsView user={user} />;
       case 'cardiac-monitor': return <DoctorCardiacMonitor />; // New Module
       case 'early-detection': return <EarlyDetectionModule />; // New Module
-      case 'whatsapp-simulator': return <WhatsAppSimulator />; // Added WhatsApp Simulator
+
       case 'my-schedule': return isDoctor ? <DoctorScheduleModule user={user} /> : <div className="p-8 text-red-500">Access Denied</div>;
       case 'analytics': return isAdmin ? <AnalyticsDashboard /> : <div className="p-8 text-red-500">Access Denied</div>;
       case 'bed-management': return isAdmin ? <BedManagement /> : <div className="p-8 text-red-500">Access Denied</div>;
