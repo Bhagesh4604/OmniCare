@@ -1,38 +1,54 @@
 import React from 'react';
-import { Stethoscope, User, Briefcase, ArrowLeft } from 'lucide-react';
+import { Stethoscope, User, Briefcase, ArrowLeft, ShieldCheck, HeartPulse } from 'lucide-react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const AnimatedCard = ({ title, icon: Icon, onClick, gradient, iconColor }) => {
-    const x = useMotionValue(200);
-    const y = useMotionValue(200);
-    const rotateX = useTransform(y, [0, 400], [15, -15]);
-    const rotateY = useTransform(x, [0, 400], [-15, 15]);
+const TiltCard = ({ title, description, icon: Icon, onClick, colorClass, delay }) => {
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const rotateX = useTransform(y, [-100, 100], [10, -10]);
+    const rotateY = useTransform(x, [-100, 100], [-10, 10]);
 
     const handleMouseMove = (event) => {
         const rect = event.currentTarget.getBoundingClientRect();
-        x.set(event.clientX - rect.left);
-        y.set(event.clientY - rect.top);
+        const width = rect.width;
+        const height = rect.height;
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const xPct = mouseX / width - 0.5;
+        const yPct = mouseY / height - 0.5;
+        x.set(xPct * 200);
+        y.set(yPct * 200);
     };
-    const handleMouseLeave = () => { x.set(200); y.set(200); }
+
+    const handleMouseLeave = () => { x.set(0); y.set(0); };
 
     return (
         <motion.div
-            style={{ width: 280, height: 350, rotateX, rotateY }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: delay }}
+            style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            whileHover={{ scale: 1.05 }}
-            variants={{ hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } }}
-            className="relative rounded-3xl shadow-2xl bg-black/20 border border-white/10 backdrop-blur-lg cursor-pointer"
+            onClick={onClick}
+            className="relative group w-full max-w-sm h-96 cursor-pointer perspective-1000"
         >
-            <div onClick={onClick} className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 transition-all duration-500 group" style={{ transformStyle: "preserve-3d" }}>
-                <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 ${gradient}`} style={{ filter: 'blur(40px)' }}></div>
-                <div style={{ transform: "translateZ(50px)" }}>
-                    <div className={`p-5 rounded-full mb-6 inline-block border border-white/10 bg-gray-800/50`}>
-                        <Icon className={`w-16 h-16 ${iconColor}`} />
+            <div className="absolute inset-0 bg-white/10 dark:bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl transition-all duration-300 group-hover:shadow-[0_0_50px_rgba(56,189,248,0.3)] group-hover:border-white/40">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative h-full flex flex-col items-center justify-center p-8 text-center" style={{ transform: "translateZ(30px)" }}>
+                    <div className={`w-24 h-24 rounded-2xl ${colorClass} bg-opacity-20 flex items-center justify-center mb-8 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon className={`w-12 h-12 ${colorClass.replace('bg-', 'text-')}`} />
                     </div>
-                    <h2 className="text-3xl font-bold text-white">{title}</h2>
-                    <p className="text-gray-400 mt-2">Securely login to your portal</p>
+
+                    <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">{title}</h2>
+                    <p className="text-gray-400 font-medium leading-relaxed">{description}</p>
+
+                    <div className="mt-8 flex items-center gap-2 text-sm font-bold text-white/60 group-hover:text-white transition-colors">
+                        <span>Access Portal</span>
+                        <ArrowLeft className="w-4 h-4 rotate-180 transition-transform group-hover:translate-x-1" />
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -43,61 +59,71 @@ export default function PortalSelection() {
     const navigate = useNavigate();
 
     return (
-        <div className="relative flex flex-col items-center justify-center h-screen bg-black text-white font-sans overflow-hidden" style={{ backgroundImage: "url('/login-bg.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-            <div className="absolute inset-0 bg-black/70 z-0"></div>
-
-            {/* Back Button */}
-            <div className="fixed top-6 left-6 z-50">
-                <button
-                    onClick={() => navigate('/')}
-                    className="group flex items-center gap-2 px-4 py-2 rounded-full text-white/80 bg-black/40 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all hover:pl-3 hover:text-white"
-                    aria-label="Back to Portal Selection"
-                >
-                    <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-                    <span className="text-sm font-medium">Back</span>
-                </button>
+        <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-slate-950">
+            {/* Aurora Background */}
+            <div className="absolute inset-0 w-full h-full">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/30 rounded-full blur-[120px] animate-aurora mix-blend-screen" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/30 rounded-full blur-[120px] animate-aurora animation-delay-2000 mix-blend-screen" />
+                <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] bg-teal-500/20 rounded-full blur-[100px] animate-aurora animation-delay-4000 mix-blend-screen" />
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="relative z-10 text-center p-8"
-            >
-                <div className="flex justify-center items-center mb-4">
-                    <Stethoscope className="w-12 h-12 text-cyan-300 mr-4" />
-                    <h1 className="text-5xl font-bold text-white tracking-tight">
-                        Omni Care HMS
-                    </h1>
-                </div>
-                <p className="text-gray-400 text-lg">
-                    Your dedicated partner in healthcare management.
-                </p>
-            </motion.div>
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
 
-            <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                    visible: { transition: { staggerChildren: 0.2, delayChildren: 0.5 } }
-                }}
-                className="relative z-10 flex flex-col md:flex-row justify-center items-center gap-12 mt-12"
+            {/* Back Button */}
+            <motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => navigate('/')}
+                className="fixed top-8 left-8 z-50 flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all group"
             >
-                <AnimatedCard
-                    title="Staff Portal"
-                    icon={Briefcase}
-                    onClick={() => navigate('/login/staff')}
-                    gradient="bg-gradient-to-br from-cyan-400 to-blue-600"
-                    iconColor="text-cyan-300"
-                />
-                <AnimatedCard
-                    title="Patient Portal"
-                    icon={User}
-                    onClick={() => navigate('/login/patient')}
-                    gradient="bg-gradient-to-br from-lime-400 to-green-600"
-                    iconColor="text-lime-300"
-                />
-            </motion.div>
+                <ArrowLeft className="w-5 h-5 text-white/70 group-hover:text-white group-hover:-translate-x-1 transition-all" />
+                <span className="text-white/70 group-hover:text-white font-medium">Return Home</span>
+            </motion.button>
+
+            {/* Center Content */}
+            <div className="relative z-10 container mx-auto px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-center mb-16"
+                >
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-teal-500 to-blue-600 mb-6 shadow-2xl shadow-teal-500/20">
+                        <HeartPulse className="w-8 h-8 text-white" />
+                    </div>
+                    <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-6">
+                        Select Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Workspace</span>
+                    </h1>
+                    <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+                        Secure, AI-powered access for every role. Choose your portal to continue.
+                    </p>
+                </motion.div>
+
+                <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
+                    <TiltCard
+                        title="Patient Portal"
+                        description="Book appointments, view medical records, and track your health journey."
+                        icon={User}
+                        onClick={() => navigate('/login/patient')}
+                        colorClass="bg-teal-500 text-teal-400"
+                        delay={0.2}
+                    />
+
+                    <TiltCard
+                        title="Staff Portal"
+                        description="Access EMS, ER dashboards, patient management, and administrative tools."
+                        icon={ShieldCheck}
+                        onClick={() => navigate('/login/staff')}
+                        colorClass="bg-blue-600 text-blue-400"
+                        delay={0.4}
+                    />
+                </div>
+            </div>
+
+            {/* Footer */}
+            <div className="absolute bottom-8 text-slate-500 text-sm font-medium">
+                &copy; 2025 Omni Care Systems. Secure Connection Verified.
+            </div>
         </div>
     );
 }
