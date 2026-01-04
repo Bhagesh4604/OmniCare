@@ -157,16 +157,16 @@ export default function EarlyDetectionModule() {
                     {/* CARDIOLOGY MODULE */}
                     {mode === 'cardiology' && (
                         <motion.div key="cardio" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl mx-auto bg-white dark:bg-white/5 rounded-3xl shadow-xl overflow-hidden border border-gray-200 dark:border-white/10">
-                            <div className="p-8 border-b border-gray-200 dark:border-white/10 bg-red-500/5">
+                            <div className="p-6 md:p-8 border-b border-gray-200 dark:border-white/10 bg-red-500/5">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-red-500 rounded-xl shadow-lg shadow-red-500/30">
                                         <Heart className="text-white" size={24} />
                                     </div>
-                                    <h2 className="text-2xl font-bold">Heart Disease Risk Calculator</h2>
+                                    <h2 className="text-xl md:text-2xl font-bold">Heart Disease Risk Calculator</h2>
                                 </div>
                             </div>
 
-                            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                                 {/* Form */}
                                 <div className="space-y-6">
                                     <h3 className="font-bold text-gray-500 uppercase text-xs tracking-wider">Patient Vitals</h3>
@@ -254,9 +254,9 @@ export default function EarlyDetectionModule() {
 
                     {/* DERMATOLOGY MODULE */}
                     {mode === 'dermatology' && (
-                        <motion.div key="derma" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-5xl mx-auto h-[600px] flex gap-8">
+                        <motion.div key="derma" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-5xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8 h-auto md:h-[600px]">
                             {/* Left: Upload */}
-                            <div className="w-1/2 flex flex-col gap-6">
+                            <div className="w-full md:w-1/2 flex flex-col gap-6 h-[400px] md:h-auto">
                                 <div className="flex-1 bg-white dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-300 dark:border-white/10 relative overflow-hidden group hover:border-amber-500/50 transition-colors">
                                     <input type="file" onChange={handleDermaUpload} accept="image/*" className="absolute inset-0 opacity-0 z-20 cursor-pointer" />
 
@@ -280,7 +280,7 @@ export default function EarlyDetectionModule() {
                             </div>
 
                             {/* Right: Analysis */}
-                            <div className="w-1/2 bg-white dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 p-8 overflow-y-auto">
+                            <div className="w-full md:w-1/2 bg-white dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 p-6 md:p-8 overflow-y-auto min-h-[400px]">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="p-2 bg-amber-500/10 rounded-lg">
                                         <Search className="text-amber-500" />

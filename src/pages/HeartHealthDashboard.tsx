@@ -134,31 +134,32 @@ const HeartHealthDashboard = () => {
     return (
         <div className="space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                    <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                         My Heart Health
                     </h1>
-                    <p className={`text-lg font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <p className={`text-base md:text-lg font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                         Real-time monitoring & AI cardiac analysis.
                     </p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <button
                         onClick={connectBluetooth}
-                        className="flex items-center gap-3 px-6 py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all"
+                        className="flex-1 md:flex-none items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all flex"
                     >
-                        <Zap size={20} /> Pair Live Device
+                        <Zap size={20} /> <span className="whitespace-nowrap">Pair Device</span>
                     </button>
                     <button
                         onClick={toggleSimulation}
-                        className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl hover:scale-105 active:scale-95 ${connected && isSimulationRunning
+                        className={`flex-1 md:flex-none items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl hover:scale-105 active:scale-95 flex ${connected && isSimulationRunning
                             ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                             : 'bg-white dark:bg-white/10 text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-white/10'
                             }`}
                     >
                         {connected && isSimulationRunning ? <Wifi className="animate-pulse" /> : <Smartphone />}
-                        {connected && isSimulationRunning ? 'Simulating...' : 'Start Simulation'}
+                        {connected && isSimulationRunning ? 'Simulating...' : 'Simulate'}
                     </button>
                 </div>
             </div>
@@ -268,7 +269,7 @@ const HeartHealthDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="flex-1 min-h-[400px]">
+                    <div className="flex-1 h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={history}>
                                 <defs>

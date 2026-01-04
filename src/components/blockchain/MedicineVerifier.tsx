@@ -84,8 +84,8 @@ const MedicineVerifier = ({ isEmbedded = false }: { isEmbedded?: boolean }) => {
                 <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
                     <ShieldCheck className="w-10 h-10 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">OmniCare Medicine Verifier</h1>
-                <p className="text-slate-500 dark:text-slate-400">Verify the authenticity of your medicine using our Supply Chain Ledger.</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-2">OmniCare Medicine Verifier</h1>
+                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-xs mx-auto md:max-w-full">Verify the authenticity of your medicine using our Supply Chain Ledger.</p>
             </motion.div>
 
             {/* Verification Card */}
@@ -98,10 +98,10 @@ const MedicineVerifier = ({ isEmbedded = false }: { isEmbedded?: boolean }) => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Enter Batch ID (e.g. BATCH-123)"
+                            placeholder="Batch ID"
                             value={batchId}
                             onChange={(e) => setBatchId(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm md:text-base"
                         />
                     </div>
                     <button

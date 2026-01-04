@@ -17,7 +17,7 @@ const MedicationCard = ({ item, onTrack }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className={`p-6 rounded-2xl border backdrop-blur-xl shadow-lg transition-all 
+            className={`p-5 md:p-6 rounded-2xl border backdrop-blur-xl shadow-lg transition-all 
                 ${isTaken
                     ? 'bg-green-500/20 border-green-500/30 shadow-green-500/10'
                     : isSkipped
@@ -152,8 +152,8 @@ export default function MedicationTracker({ patient }) {
     if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
     return (
-        <div className="p-4 sm:p-8">
-            <div className="flex items-center justify-between mb-8">
+        <div className="p-4 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold mb-2 text-foreground">Medications</h1>
                     <p className="text-muted-foreground">Log the medications you've taken today, {new Date().toLocaleDateString('en-US', { weekday: 'long' })}.</p>
@@ -163,8 +163,8 @@ export default function MedicationTracker({ patient }) {
                     whileTap={{ scale: 0.95 }}
                     onClick={toggleReminders}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-lg ${remindersEnabled
-                            ? 'bg-blue-500 text-white shadow-blue-500/20'
-                            : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                        ? 'bg-blue-500 text-white shadow-blue-500/20'
+                        : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                         }`}
                 >
                     {remindersEnabled ? <Bell size={18} /> : <BellOff size={18} />}

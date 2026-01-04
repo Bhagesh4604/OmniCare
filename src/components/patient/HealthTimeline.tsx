@@ -30,7 +30,7 @@ const TimelineItem = ({ item, isLast }) => {
 
   return (
     <motion.div
-      className="relative pl-8 pb-8"
+      className="relative pl-4 md:pl-8 pb-8"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
@@ -46,7 +46,7 @@ const TimelineItem = ({ item, isLast }) => {
           <h4 className="font-bold capitalize text-xl text-gray-900 dark:text-white mb-3 flex items-center gap-2">
             {item.type.replace('_', ' ')}
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm text-gray-600 dark:text-gray-300 relative z-10">
+          <div className="grid grid-cols-1 gap-y-2 text-sm text-gray-600 dark:text-gray-300 relative z-10">
             {Object.entries(item.details).map(([key, value]) => {
               if (key === 'date') return null;
               return (
@@ -102,8 +102,8 @@ export default function HealthTimeline({ patient }) {
   }
 
   return (
-    <div className="p-4 sm:p-8">
-      <h1 className="text-3xl font-bold mb-8 text-foreground">Medical History for {patient.firstName} {patient.lastName}</h1>
+    <div className="p-4 md:p-8">
+      <h1 className="text-2xl md:text-3xl font-bold mb-8 text-foreground">Medical History for {patient.firstName} {patient.lastName}</h1>
       <div className="relative">
         {history.length > 0 ? (
           history.map((item, index) => (

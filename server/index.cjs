@@ -88,7 +88,8 @@ const allowedOrigins = [
   'http://192.168.1.103:5174', // New port detected
   'http://192.168.1.103:5175',
   'https://ressie-ectozoic-loida.ngrok-free.dev', // User's Ngrok URL
-  'https://shreemedicare1.onrender.com'
+  'https://shreemedicare1.onrender.com',
+  'https://omnicare-f9ahcchnfvdwhnd7.centralindia-01.azurewebsites.net' // Azure Deployment
 ];
 
 const corsOptions = {
