@@ -130,8 +130,11 @@ router.post('/track', async (req, res) => {
             ON DUPLICATE KEY UPDATE status = VALUES(status), recordedAt = NOW();
         `;
 
+        // Format doseTime for MySQL (YYYY-MM-DD HH:mm:ss) to avoid mismatch
+        const formattedDoseTime = new Date(doseTime).toISOString().slice(0, 19).replace('T', ' ');
+
         await new Promise((resolve, reject) => {
-            executeQuery(sql, [patientId, prescriptionId, doseTime, status], (err, result) => {
+            executeQuery(sql, [patientId, prescriptionId, formattedDoseTime, status], (err, result) => {
                 if (err) {
                     console.error('Error executing medication tracking query:', err);
                     return reject(err);
