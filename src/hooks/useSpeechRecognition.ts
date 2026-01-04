@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 
-export default function useSpeechRecognition({ commandMode = true, onResult = (text: string) => { } } = {}) {
+export default function useSpeechRecognition({ commandMode = true, language = 'en-US', onResult = (text: string) => { } } = {}) {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [agentSpeaking, setAgentSpeaking] = useState(false);
@@ -13,6 +13,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
     // Refs for safe callback access
     const onResultRef = useRef(onResult);
     const commandModeRef = useRef(commandMode);
+    const languageRef = useRef(language);
 
     const lastCommandTime = useRef<number>(0);
 
@@ -21,6 +22,10 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
         onResultRef.current = onResult;
         commandModeRef.current = commandMode;
     }, [onResult, commandMode]);
+
+    useEffect(() => {
+        languageRef.current = language;
+    }, [language]);
 
     // Cleanup on unmount
     useEffect(() => {
@@ -32,30 +37,38 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
         };
     }, []);
 
+    const agentSpeakingRef = useRef(false);
+
     // Helper for Text-to-Speech Feedback (The "Agent" Voice)
     const speak = (text: string) => {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
 
-        // PAUSE LISTENING while AI speaks (Prevent Loop/Echo)
-        if (recognizerRef.current) {
-            // We stop recognition so the microphone doesn't pick up the AI
-            recognizerRef.current.stopContinuousRecognitionAsync();
-        }
+        // STATE UPDATE: Mark agent as speaking
         setAgentSpeaking(true);
+        agentSpeakingRef.current = true;
 
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = window.speechSynthesis.getVoices();
-        const preferredVoice = voices.find(v => v.name.includes('Neural') || v.name.includes('Google US English'));
+
+        // Try to match voice to language
+        let preferredVoice = null;
+        if (languageRef.current.startsWith('hi')) {
+            preferredVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
+        } else if (languageRef.current.startsWith('mr')) {
+            preferredVoice = voices.find(v => v.lang.includes('mr') || v.name.includes('Marathi'));
+        }
+
+        if (!preferredVoice) {
+            preferredVoice = voices.find(v => v.name.includes('Neural') || v.name.includes('Google US English'));
+        }
+
         if (preferredVoice) utterance.voice = preferredVoice;
-        utterance.rate = 1.1;
+        utterance.rate = 1.0;
 
         utterance.onend = () => {
             setAgentSpeaking(false);
-            // RESUME LISTENING after AI finishes speaking
-            if (recognizerRef.current) {
-                recognizerRef.current.startContinuousRecognitionAsync();
-            }
+            agentSpeakingRef.current = false;
         };
 
         window.speechSynthesis.speak(utterance);
@@ -73,7 +86,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
             const response = await fetch('/api/agent/process', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text }) // Send full text, LLM parses intent
+                body: JSON.stringify({ message: text, language: languageRef.current }) // Send full text + language
             });
             const data = await response.json();
 
@@ -95,6 +108,23 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
                     else if (module === 'fleet') navigate('/fleet-management');
                     else if (module === 'patient-portal') navigate('/patient-dashboard');
                     else if (module === 'telemedicine') navigate('/patient-dashboard'); // Map to patient portal
+                    else if (module === 'patient-book-ambulance') navigate('/patient/book-ambulance'); // Specific Route
+                    else if (module.startsWith('patient-')) {
+                        // Handle Patient Specific Tabs (appointments, medications, etc)
+                        const tab = module.replace('patient-', '');
+
+                        // Navigate to dashboard first if not there
+                        if (window.location.pathname !== '/patient-dashboard') {
+                            navigate('/patient-dashboard');
+                            // Short delay to allow mount
+                            setTimeout(() => {
+                                window.dispatchEvent(new CustomEvent('switch-patient-tab', { detail: tab }));
+                            }, 500);
+                        } else {
+                            // Direct switch
+                            window.dispatchEvent(new CustomEvent('switch-patient-tab', { detail: tab }));
+                        }
+                    }
                     else {
                         // Internal Staff Dashboard Tab Switch
                         window.dispatchEvent(new CustomEvent('switch-module', { detail: module }));
@@ -109,13 +139,18 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
                     // DOM Action: Click Button
                     executeDOMAction('click', payload);
                 }
+                else if (type === 'open_modal') {
+                    const { modal } = payload;
+                    // Dispatch Custom Event for Dashboard to catch
+                    window.dispatchEvent(new CustomEvent('open-modal', { detail: modal }));
+                }
                 // Check Inventory & Get Patient Status are handled by the server generating a 'reply' string
                 // so no client-side action is strictly needed unless we want to open a modal.
             }
 
         } catch (error) {
             console.error("Agent Error:", error);
-            speak("I'm sorry, I couldn't reach the brain server.");
+            speak("I'm sorry, I couldn't reach the brain."); // Keep short
         }
 
         lastCommandTime.current = Date.now();
@@ -139,7 +174,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
                     (input as HTMLInputElement).value = value;
                     // React event dispatch hack to ensure state updates
                     input.dispatchEvent(new Event('input', { bubbles: true }));
-                    input.focus();
+                    (input as HTMLElement).focus();
                 } else {
                     console.log(`Could not find input for: ${field_label}`);
                 }
@@ -155,7 +190,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
 
                 if (target) {
                     (target as HTMLElement).click();
-                    target.focus(); // Give visual feedback
+                    (target as HTMLElement).focus(); // Give visual feedback
                 } else {
                     console.log(`Could not find button: ${element_text}`);
                 }
@@ -165,7 +200,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
 
     const startListening = useCallback(async () => {
         // Prevent double start or starting while AI is speaking
-        if (isListening || agentSpeaking) return;
+        if (isListening || agentSpeakingRef.current) return;
         if (recognizerRef.current) return; // already active
 
         try {
@@ -176,7 +211,7 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
 
             // 2. Configure SDK
             const speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, region);
-            speechConfig.speechRecognitionLanguage = 'en-US';
+            speechConfig.speechRecognitionLanguage = languageRef.current;
 
             const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
             const recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
@@ -186,12 +221,12 @@ export default function useSpeechRecognition({ commandMode = true, onResult = (t
             // 3. Setup Events
             recognizer.recognizing = (s, e) => {
                 // Ignore while agent is speaking
-                if (agentSpeaking) return;
+                if (agentSpeakingRef.current) return;
                 setTranscript(e.result.text);
             };
 
             recognizer.recognized = (s, e) => {
-                if (agentSpeaking) return;
+                if (agentSpeakingRef.current) return;
                 if (e.result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
                     const text = e.result.text;
                     setTranscript(text);

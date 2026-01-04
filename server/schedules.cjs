@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('./db.cjs');
-const { zonedTimeToUtc, utcToZonedTime, format } = require('date-fns-tz');
+const { fromZonedTime, toZonedTime, format } = require('date-fns-tz');
 
 // Get a doctor's schedule
 router.get('/:doctorId', (req, res) => {
@@ -61,7 +61,7 @@ router.get('/available-slots/:doctorId/:date', (req, res) => {
     const dayOfWeek = new Date(date).getUTCDay();
 
     const scheduleSql = 'SELECT startTime, endTime FROM doctor_schedules WHERE doctorId = ? AND dayOfWeek = ?';
-    
+
     executeQuery(scheduleSql, [doctorId, dayOfWeek], (err, scheduleResults) => {
         if (err) return res.status(500).json({ success: false, message: 'DB error fetching schedule.' });
         if (scheduleResults.length === 0) {
@@ -74,13 +74,13 @@ router.get('/available-slots/:doctorId/:date', (req, res) => {
         executeQuery(appointmentsSql, [doctorId, date, date], (err, appointmentResults) => {
             if (err) return res.status(500).json({ success: false, message: 'DB error fetching appointments.' });
 
-            const bookedTimes = appointmentResults.map(a => utcToZonedTime(new Date(a.appointmentDate), timeZone).getTime());
-            
+            const bookedTimes = appointmentResults.map(a => toZonedTime(new Date(a.appointmentDate), timeZone).getTime());
+
             const availableSlots = [];
             const slotDuration = 30 * 60 * 1000; // 30 minutes
 
-            const startDateTime = zonedTimeToUtc(`${date}T${startTime}`, timeZone);
-            const endDateTime = zonedTimeToUtc(`${date}T${endTime}`, timeZone);
+            const startDateTime = fromZonedTime(`${date}T${startTime}`, timeZone);
+            const endDateTime = fromZonedTime(`${date}T${endTime}`, timeZone);
 
             let currentTime = startDateTime;
 

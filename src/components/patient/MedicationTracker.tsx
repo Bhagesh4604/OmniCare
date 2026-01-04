@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiUrl from '@/config/api';
-import { Pill, Check, X, Clock, Sun, Sunset, Moon } from 'lucide-react';
+import useMedicationReminders from '@/hooks/useMedicationReminders';
+import { Pill, Check, X, Clock, Sun, Sunset, Moon, Bell, BellOff } from 'lucide-react';
 
 const MedicationCard = ({ item, onTrack }) => {
     const isActionable = item.status === 'scheduled';
@@ -60,6 +61,8 @@ export default function MedicationTracker({ patient }) {
     const [medications, setMedications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const { remindersEnabled, toggleReminders, permission } = useMedicationReminders(medications);
 
     const fetchMedications = async () => {
         if (!patient?.id) return;
@@ -150,8 +153,24 @@ export default function MedicationTracker({ patient }) {
 
     return (
         <div className="p-4 sm:p-8">
-            <h1 className="text-3xl font-bold mb-2 text-foreground">Medications</h1>
-            <p className="text-muted-foreground mb-8">Log the medications you've taken today, {new Date().toLocaleDateString('en-US', { weekday: 'long' })}.</p>
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold mb-2 text-foreground">Medications</h1>
+                    <p className="text-muted-foreground">Log the medications you've taken today, {new Date().toLocaleDateString('en-US', { weekday: 'long' })}.</p>
+                </div>
+
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={toggleReminders}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-lg ${remindersEnabled
+                            ? 'bg-blue-500 text-white shadow-blue-500/20'
+                            : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                        }`}
+                >
+                    {remindersEnabled ? <Bell size={18} /> : <BellOff size={18} />}
+                    <span className="hidden sm:inline">{remindersEnabled ? 'Reminders On' : 'Enable Reminders'}</span>
+                </motion.button>
+            </div>
 
             <div className="space-y-8">
                 {medications.length > 0 ? (

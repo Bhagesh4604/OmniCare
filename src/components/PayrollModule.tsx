@@ -82,7 +82,7 @@ export default function PayrollModule() {
     setIsGenerating(true);
     setGeneratedEmail('');
 
-    const systemPrompt = "You are an HR assistant for a hospital named 'Shree Medicare'. Your tone is professional, friendly, and concise.";
+    const systemPrompt = "You are an HR assistant for a hospital named 'Omni Care'. Your tone is professional, friendly, and concise.";
     const userQuery = `Draft an email to an employee named ${payrollRecord.firstName} ${payrollRecord.lastName} notifying them that their salary of $${Number(payrollRecord.basicSalary).toLocaleString()} for the pay period ${new Date(payrollRecord.payPeriodStart).toLocaleDateString()} to ${new Date(payrollRecord.payPeriodEnd).toLocaleDateString()} has been processed. Mention that the amount will be reflected in their bank account shortly. Keep it brief.`;
 
     try {

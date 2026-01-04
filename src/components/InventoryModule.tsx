@@ -54,6 +54,7 @@ export default function InventoryModule() {
     const [isGenerating, setIsGenerating] = useState(false);
 
     const [newItem, setNewItem] = useState({ name: '', quantity: '1', status: 'available' });
+    const [newBatch, setNewBatch] = useState({ medicineId: '', batchNumber: '', manufacturer: '', expiryDate: '', quantity: '', price: '' });
     const [editItem, setEditItem] = useState(null);
 
     useEffect(() => {
@@ -81,6 +82,8 @@ export default function InventoryModule() {
         const { name, value } = e.target;
         if (formType === 'new') {
             setNewItem(prev => ({ ...prev, [name]: value }));
+        } else if (formType === 'batch') {
+            setNewBatch(prev => ({ ...prev, [name]: value }));
         } else {
             setEditItem(prev => (prev ? { ...prev, [name]: value } : null));
         }
@@ -98,6 +101,23 @@ export default function InventoryModule() {
             if (data.success) {
                 setModal(null);
                 fetchEquipment();
+            } else { alert(data.message); }
+        } catch (error) { alert('Failed to connect to server.'); }
+    };
+
+    const handleAddBatch = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(apiUrl('/api/inventory/batch/add'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newBatch),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setModal(null);
+                alert(`✅ Batch Added!\nBlock Index: ${data.blockIndex}\nHash: ${data.blockHash}`);
+                fetchPharmaceuticals(); // Refresh stock
             } else { alert(data.message); }
         } catch (error) { alert('Failed to connect to server.'); }
     };
@@ -170,6 +190,7 @@ export default function InventoryModule() {
         setModal(type);
         if (item) setEditItem(JSON.parse(JSON.stringify(item)));
         if (type === 'add') setNewItem({ name: '', quantity: '1', status: 'available' });
+        if (type === 'addBatch') setNewBatch({ medicineId: '', batchNumber: '', manufacturer: '', expiryDate: '', quantity: '', price: '' });
     };
 
     const lowStockCount = useMemo(() => pharmaceuticals.filter(p => p.stockQuantity <= p.reorderLevel).length, [pharmaceuticals]);
@@ -192,6 +213,16 @@ export default function InventoryModule() {
                             <div className="flex items-center gap-2 relative z-10">
                                 <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                                 <span>Add Equipment</span>
+                            </div>
+                        </button>
+                    )}
+
+                    {activeTab === 'pharma' && (
+                        <button onClick={() => openModal('addBatch')} className="group relative px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300 overflow-hidden">
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                            <div className="flex items-center gap-2 relative z-10">
+                                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+                                <span>Add New Batch</span>
                             </div>
                         </button>
                     )}
@@ -257,6 +288,28 @@ export default function InventoryModule() {
                             <div className="flex justify-end gap-4 pt-6 mt-4 border-t border-gray-800">
                                 <button type="button" onClick={() => setModal(null)} className="px-6 py-2 bg-gray-700 rounded-lg font-semibold hover:bg-gray-600">Cancel</button>
                                 <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Add Item</button>
+                            </div>
+                        </form>
+                    )}
+                    {modal === 'addBatch' && (
+                        <form onSubmit={handleAddBatch}>
+                            <h2 className="text-2xl font-bold mb-6">Add New Medicine Batch</h2>
+                            <div className="space-y-4">
+                                <select name="medicineId" value={newBatch.medicineId} onChange={(e) => handleInputChange(e, 'batch')} className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required>
+                                    <option value="">Select Medicine</option>
+                                    {pharmaceuticals.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                </select>
+                                <input name="batchNumber" value={newBatch.batchNumber} onChange={(e) => handleInputChange(e, 'batch')} placeholder="Batch Number" className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required />
+                                <input name="manufacturer" value={newBatch.manufacturer} onChange={(e) => handleInputChange(e, 'batch')} placeholder="Manufacturer" className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input type="date" name="expiryDate" value={newBatch.expiryDate} onChange={(e) => handleInputChange(e, 'batch')} className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required />
+                                    <input type="number" name="quantity" value={newBatch.quantity} onChange={(e) => handleInputChange(e, 'batch')} placeholder="Quantity" className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required />
+                                </div>
+                                <input type="number" name="price" value={newBatch.price} onChange={(e) => handleInputChange(e, 'batch')} placeholder="Price per Unit ($)" className="w-full p-3 bg-gray-800 border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500" required />
+                            </div>
+                            <div className="flex justify-end gap-4 pt-6 mt-4 border-t border-gray-800">
+                                <button type="button" onClick={() => setModal(null)} className="px-6 py-2 bg-gray-700 rounded-lg font-semibold hover:bg-gray-600">Cancel</button>
+                                <button type="submit" className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700">Add Batch</button>
                             </div>
                         </form>
                     )}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowLeft, HeartPulse } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import apiUrl from '@/config/api';
+import { AuroraBackground } from '../ui/AuroraBackground';
 
 export default function PatientLogin({ onLogin, setAuthMode }) {
   const navigate = useNavigate();
@@ -63,19 +64,11 @@ export default function PatientLogin({ onLogin, setAuthMode }) {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-black text-white font-sans overflow-hidden">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/30 via-black to-gray-900/60" />
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-teal-600/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?q=80&w=2128&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-overlay" />
-      </div>
-
+    <AuroraBackground className="bg-black text-white font-sans">
       {/* Back Button */}
-      <div className="absolute top-6 left-6 z-50">
+      <div className="fixed top-6 left-6 z-50">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/login')}
           className="group flex items-center gap-2 px-4 py-2 rounded-full text-white/80 bg-black/40 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all hover:pl-3 hover:text-white"
           aria-label="Back to Portal Selection"
         >
@@ -88,7 +81,7 @@ export default function PatientLogin({ onLogin, setAuthMode }) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-md px-6"
+        className="relative z-10 w-full max-w-md px-6 mx-auto"
       >
         <motion.div
           variants={cardVariants}
@@ -174,35 +167,14 @@ export default function PatientLogin({ onLogin, setAuthMode }) {
                 Create Account
               </button>
             </div>
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-transparent text-gray-500 font-medium">Or continue with</span>
-              </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => alert("Microsoft Login Integration: This requires the frontend to use @azure/msal-browser. For compliance, the backend is ready at /api/auth/patient/microsoft-login.")}
-              className="w-full py-3.5 flex items-center justify-center gap-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-100 transition-colors"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 0H0V10H10V0Z" fill="#F25022" />
-                <path d="M21 0H11V10H21V0Z" fill="#7FBA00" />
-                <path d="M10 11H0V21H10V11Z" fill="#00A4EF" />
-                <path d="M21 11H11V21H21V11Z" fill="#FFB900" />
-              </svg>
-              Sign in with Microsoft
-            </button>
           </form>
         </motion.div>
 
         <p className="text-center text-gray-600 text-sm mt-8">
-          Shree Medicare Management System &copy; 2026
+          Omni Care Management System &copy; 2026
         </p>
       </motion.div>
-    </div>
+    </AuroraBackground>
   );
 }

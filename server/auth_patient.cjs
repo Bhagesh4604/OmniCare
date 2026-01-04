@@ -66,7 +66,7 @@ router.post('/register', async (req, res) => {
         // Send welcome SMS (fire and forget)
         const { sendSms } = require('./sms.cjs');
 
-        sendSms(contact, 'Welcome to Shree Medicare! Your registration was successful.').catch(err => {
+        sendSms(contact, 'Welcome to Omni Care! Your registration was successful.').catch(err => {
             console.error("Failed to send SMS during registration:", err);
         });
 

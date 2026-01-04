@@ -34,7 +34,17 @@ import ERDashboard from './pages/ERDashboard'; // New ER Dashboard
 import EmsLayout from './components/ems/EmsLayout'; // New EMS Layout
 import DoctorCardiacMonitor from './pages/DoctorCardiacMonitor'; // New Cardiac Monitor
 import OncologyScreening from './components/OncologyScreening'; // New Oncology Module
+import EarlyDetectionModule from './components/EarlyDetectionModule'; // New Prevention Module
 import IoTDeviceSimulator from './pages/IoTDeviceSimulator'; // IoT Simulator
+
+
+
+
+
+import WhatsAppSimulator from './components/admin/WhatsAppSimulator'; // WhatsApp Simulator
+import AuroraDemo from './pages/AuroraDemo'; // Demo for Aurora Background
+import MedicineVerifier from './components/blockchain/MedicineVerifier'; // New Blockchain Verifier
+import SmartPrescription from './components/SmartPrescription'; // New Smart Contract Feature
 
 // --- AUTH & ROUTING IMPORTS ---
 import StaffLogin from './components/auth/StaffLogin';
@@ -43,6 +53,7 @@ import PatientRegister from './components/auth/PatientRegister';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import PortalSelection from './components/PortalSelection';
 
 // --- THEME IMPORTS ---
 import { useTheme } from './context/ThemeContext';
@@ -66,7 +77,7 @@ interface MainApplicationProps {
 
 const MainApplication: React.FC<MainApplicationProps> = ({ user, onLogout, updateUser }) => {
   const [activeModule, setActiveModule] = useState('dashboard');
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
   const { toggleTheme } = useTheme();
 
   const handleModuleChange = (module: string) => {
@@ -98,7 +109,8 @@ const MainApplication: React.FC<MainApplicationProps> = ({ user, onLogout, updat
       case 'telemedicine': return isDoctor ? <TelemedicineModule user={user} /> : <div className="p-8 text-red-500">Access Denied</div>;
       case 'appointments': return <AppointmentsView user={user} />;
       case 'cardiac-monitor': return <DoctorCardiacMonitor />; // New Module
-      case 'oncology-screening': return <OncologyScreening />; // New Module
+      case 'early-detection': return <EarlyDetectionModule />; // New Module
+      case 'whatsapp-simulator': return <WhatsAppSimulator />; // Added WhatsApp Simulator
       case 'my-schedule': return isDoctor ? <DoctorScheduleModule user={user} /> : <div className="p-8 text-red-500">Access Denied</div>;
       case 'analytics': return isAdmin ? <AnalyticsDashboard /> : <div className="p-8 text-red-500">Access Denied</div>;
       case 'bed-management': return isAdmin ? <BedManagement /> : <div className="p-8 text-red-500">Access Denied</div>;
@@ -131,7 +143,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({ user, onLogout, updat
             >
               <Menu className="h-6 w-6 text-gray-800 dark:text-white" />
             </button>
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Shree Medicare</h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">Omni Care</h1>
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -150,6 +162,7 @@ const MainApplication: React.FC<MainApplicationProps> = ({ user, onLogout, updat
 };
 
 import VoiceController from './components/VoiceController';
+import { Toaster } from 'react-hot-toast';
 
 // --- Root App Component ---
 function App() {
@@ -209,22 +222,24 @@ function App() {
 
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       <VoiceController />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={loggedInUser ? <Navigate to="/staff-dashboard" /> : <LandingPage />} />
+        <Route path="/login" element={<PortalSelection />} />
         <Route path="/login/staff" element={<StaffLogin onLogin={handleLogin} />} />
         <Route path="/login/patient" element={<PatientAuthPage onLogin={handleLogin} />} />
-        <Route path="/register/patient" element={<PatientRegister />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/register/patient" element={<PatientRegister setAuthMode={() => navigate('/login/patient')} />} />
+        <Route path="/forgot-password" element={<ForgotPassword setAuthMode={() => navigate('/login/patient')} />} />
+        <Route path="/reset-password" element={<ResetPassword setAuthMode={() => navigate('/login/patient')} />} />
 
         {/* Protected Routes */}
         <Route
           path="/staff-dashboard"
           element={
             <ProtectedRoute user={loggedInUser} allowedRoles={['admin', 'doctor']}>
-              <MainApplication user={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />
+              <MainApplication user={loggedInUser!} onLogout={handleLogout} updateUser={updateLoggedInUser} />
             </ProtectedRoute>
           }
         />
@@ -232,7 +247,7 @@ function App() {
           path="/patient-dashboard"
           element={
             <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
-              <PatientDashboard patient={loggedInUser} onLogout={handleLogout} updateUser={updateLoggedInUser} />
+              <PatientDashboard patient={loggedInUser!} onLogout={handleLogout} updateUser={updateLoggedInUser} />
             </ProtectedRoute>
           }
         />
@@ -290,6 +305,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/verify-medicine" element={<MedicineVerifier />} />
+        <Route path="/smart-prescription" element={<SmartPrescription />} /> {/* Public Verification Route */}
       </Routes>
     </>
   );

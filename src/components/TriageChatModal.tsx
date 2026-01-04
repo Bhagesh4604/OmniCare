@@ -9,7 +9,7 @@ import apiUrl from '@/config/api';
 
 export default function TriageChatModal({ onClose }) {
   const [messages, setMessages] = useState([
-    { from: 'ai', text: 'Hello! I am your AI Symptom Checker. Please describe your symptoms, and I can suggest the right department for you.' }
+    { from: 'ai', text: 'Hello! I am your Virtual Health Assistant. You can ask me general medical questions or describe symptoms to book an appointment.' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +34,9 @@ export default function TriageChatModal({ onClose }) {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      const response = await fetch(apiUrl('/api/triage/ask'), {
+      const fullUrl = apiUrl('/api/triage/ask');
+      console.log("DEBUG: Calling API at:", fullUrl);
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ symptoms: input }),
@@ -103,8 +105,8 @@ export default function TriageChatModal({ onClose }) {
               >
                 <div
                   className={`max-w-[85%] p-4 rounded-2xl shadow-sm text-sm leading-relaxed ${msg.from === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-none'
-                      : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-bl-none'
                     }`}
                   dangerouslySetInnerHTML={{ __html: msg.text }}
                 />

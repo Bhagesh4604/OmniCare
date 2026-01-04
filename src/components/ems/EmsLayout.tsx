@@ -9,7 +9,7 @@ const EmsLayout = ({ children, user, onLogout }) => {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
       <header className="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold text-gray-900 dark:text-white">Shree Medicare - EMS</h1>
+        <h1 className="text-lg font-bold text-gray-900 dark:text-white">Omni Care - EMS</h1>
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />

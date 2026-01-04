@@ -109,9 +109,19 @@ const BookAmbulance = ({ user }: { user: any }) => {
     try {
       // Use FormData for image upload
       const formData = new FormData();
-      formData.append('patient_id', user.id);
-      formData.append('latitude', lat.toString());
-      formData.append('longitude', lon.toString());
+
+      const pId = user?.id || user?.patientId || user?.userId;
+      console.log('BookAmbulance: Booking for user', user, 'Selected ID:', pId);
+
+      if (!pId) {
+        setBookingStatus('error');
+        setErrorMessage('User Profile Error: Patient ID is missing. Please re-login.');
+        return;
+      }
+
+      formData.append('patient_id', String(pId));
+      formData.append('latitude', String(lat));
+      formData.append('longitude', String(lon));
       formData.append('notes', notes);
       if (accidentImage) {
         formData.append('accidentImage', accidentImage);

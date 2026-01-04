@@ -160,7 +160,7 @@ export default function AccountingModule() {
         setGeneratedMessage('');
         setSmsStatus('');
 
-        const systemPrompt = "You are a friendly but professional accounting assistant for 'Shree Medicare Hospital'. Your task is to draft a brief and polite message suitable for an SMS or short email.";
+        const systemPrompt = "You are a friendly but professional accounting assistant for 'Omni Care Hospital'. Your task is to draft a brief and polite message suitable for an SMS or short email.";
         const userQuery = type === 'reminder'
             ? `Draft a payment reminder for patient ${item.patientName} regarding invoice #${item.invoiceNumber} for the amount of $${item.amount}, which was due on ${new Date(item.dueDate).toLocaleDateString()}.`
             : `Draft a payment confirmation for patient ${item.patientName} for invoice #${item.invoiceNumber} for the amount of $${item.amount}. Thank them for their payment and confirm the payment has been received.`;

@@ -186,9 +186,9 @@ export default function OncologyScreening() {
                                         Key Findings
                                     </h3>
                                     <div className="flex flex-wrap gap-2 mb-6">
-                                        {result.findings?.map((finding: string, i: number) => (
+                                        {(Array.isArray(result.findings) ? result.findings : [result.findings || "No specific findings"]).map((finding: any, i: number) => (
                                             <span key={i} className="px-3 py-1 bg-violet-500/10 border border-violet-500/20 text-violet-600 dark:text-violet-300 rounded-lg text-sm font-semibold">
-                                                {finding}
+                                                {typeof finding === 'object' ? (finding.action ? `${finding.action}: ${finding.description}` : JSON.stringify(finding)) : finding}
                                             </span>
                                         ))}
                                     </div>
@@ -200,10 +200,10 @@ export default function OncologyScreening() {
 
                                     <h3 className="text-lg font-bold mb-2">Recommendations</h3>
                                     <ul className="space-y-3">
-                                        {result.recommendations?.map((rec: string, i: number) => (
+                                        {(Array.isArray(result.recommendations) ? result.recommendations : [result.recommendations || "No specific recommendations"]).map((rec: any, i: number) => (
                                             <li key={i} className="flex items-start gap-3 text-gray-600 dark:text-gray-300">
                                                 <CheckCircle size={18} className="text-green-500 mt-1 shrink-0" />
-                                                <span>{rec}</span>
+                                                <span>{typeof rec === 'object' ? (rec.action ? `${rec.action}: ${rec.description}` : JSON.stringify(rec)) : rec}</span>
                                             </li>
                                         ))}
                                     </ul>

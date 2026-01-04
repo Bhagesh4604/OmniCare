@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload } from 'lucide-react';
+import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload, Scan } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { zonedTimeToUtc, format } from 'date-fns-tz';
+import { fromZonedTime, format } from 'date-fns-tz';
 import { useNavigate } from 'react-router-dom';
 
 import { useTheme } from '../../context/ThemeContext';
@@ -12,8 +12,15 @@ import HealthTimeline from './HealthTimeline';
 import MedicationTracker from './MedicationTracker';
 import HeartHealthDashboard from '../../pages/HeartHealthDashboard'; // Import new module
 import UploadReport from '../UploadReport';
+import HealthTwinCanvas from '../3d/HealthTwin';
+import EarlyDetectionModule from '../EarlyDetectionModule';
+import MedicationScanner from './MedicationScanner';
+import MedicineVerifier from '../../components/blockchain/MedicineVerifier';
 
 import NewSidebar from '../NewSidebar';
+import VoiceController from '../VoiceController';
+import TiltCard from '../ui/TiltCard';
+import Profile from '../../components/Profile';
 
 // --- ANIMATIONS & STYLES ---
 const containerVariants = {
@@ -33,16 +40,13 @@ const itemVariants = {
     }
 };
 
-const GlassCard = ({ children, className = "", onClick }) => (
-    <motion.div
-        variants={itemVariants}
-        whileHover={onClick ? { scale: 1.02 } : {}}
-        whileTap={onClick ? { scale: 0.98 } : {}}
+const GlassCard = ({ children, className = "", onClick }: any) => (
+    <TiltCard
         onClick={onClick}
-        className={`relative overflow-hidden rounded-2xl bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-lg ${className}`}
+        className={`bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-lg ${className}`}
     >
         {children}
-    </motion.div>
+    </TiltCard>
 );
 
 const StatCard = ({ title, value, icon: Icon, colorClass = "text-blue-500", bgClass = "bg-blue-500/10" }) => (
@@ -60,6 +64,7 @@ const StatCard = ({ title, value, icon: Icon, colorClass = "text-blue-500", bgCl
 
 export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const { theme, toggleTheme } = useTheme();
+    const [healthRisks, setHealthRisks] = useState<{ heart: 'Low' | 'Medium' | 'High'; skin: 'Low' | 'Medium' | 'High'; general: 'Low' | 'Medium' | 'High' }>({ heart: 'High', skin: 'Low', general: 'Medium' }); // Mock Risk Data
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
     const [appointments, setAppointments] = useState([]);
@@ -70,6 +75,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     const [prescriptions, setPrescriptions] = useState([]);
     const [showModal, setShowModal] = useState(null);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showMedScanner, setShowMedScanner] = useState(false);
     const navigate = useNavigate();
 
     // Refactored state for appointment booking
@@ -154,6 +160,33 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     };
 
     useEffect(() => {
+        // Voice Navigation Handler
+        const handleVoiceSwitch = (e: any) => {
+            const tab = e.detail;
+            if (tab === 'medications') setActiveTab('medication-tracker');
+            else if (tab === 'records') setActiveTab('records');
+            else if (tab === 'appointments') setActiveTab('appointments');
+            else if (tab === 'billing') setActiveTab('billing');
+            else if (tab === 'health-twin') setActiveTab('health-twin');
+            else if (tab === 'early-detection') setActiveTab('early-detection');
+            else setActiveTab(tab);
+        };
+        window.addEventListener('switch-patient-tab', handleVoiceSwitch);
+
+        // Voice Action Handler (Modals)
+        const handleVoiceAction = (e: any) => {
+            const modal = e.detail;
+            if (modal === 'triage') setShowTriageModal(true);
+        };
+        window.addEventListener('open-modal', handleVoiceAction);
+
+        return () => {
+            window.removeEventListener('switch-patient-tab', handleVoiceSwitch);
+            window.removeEventListener('open-modal', handleVoiceAction);
+        };
+    }, []);
+
+    useEffect(() => {
         if (patient && patient.id) {
             fetchAllData();
         }
@@ -201,7 +234,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             return;
         }
         const timeZone = 'Asia/Kolkata';
-        const utcAppointmentDate = zonedTimeToUtc(bookingSlot, timeZone);
+        const utcAppointmentDate = fromZonedTime(bookingSlot, timeZone);
         try {
             const response = await fetch(apiUrl('/api/portal/book-appointment'), {
                 method: 'POST',
@@ -259,27 +292,75 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
 
     const dashboardJSX = (
         <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
-            {/* Wellness Greeting */}
-            <motion.div variants={itemVariants} className="relative p-8 rounded-3xl overflow-hidden bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-2xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
-                <div className="relative z-10">
-                    <h1 className="text-4xl font-bold mb-2">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {patient?.firstName}!</h1>
-                    <p className="text-indigo-100 text-lg max-w-2xl">Your health journey is looking great. Currently, you have <span className="font-bold text-white">{appointments.filter(a => new Date(a.appointmentDate) > new Date()).length} upcoming appointments</span>.</p>
-                </div>
-            </motion.div>
+            <div className="grid grid-cols-1 gap-6">
+                {/* Full Width Column: Greeting & Actions */}
+                <div className="space-y-6">
+                    {/* Wellness Greeting */}
+                    <motion.div variants={itemVariants} className="relative p-8 rounded-3xl overflow-hidden bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-2xl">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
+                        <div className="relative z-10">
+                            <h1 className="text-4xl font-bold mb-2">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {patient?.firstName}!</h1>
+                            <p className="text-indigo-100 text-lg max-w-2xl">Your health journey is looking great. Currently, you have <span className="font-bold text-white">{appointments.filter(a => new Date(a.appointmentDate) > new Date()).length} upcoming appointments</span>.</p>
+                        </div>
+                    </motion.div>
 
-            {/* Top Row: Language Selector for Desktop (Floating) */}
-            <div className="hidden lg:flex justify-end mb-4">
-                <div className="flex items-center gap-2 bg-white/40 dark:bg-black/40 backdrop-blur-md px-4 py-2 rounded-full shadow-sm border border-white/20">
-                    <Globe size={16} className="text-indigo-600 dark:text-indigo-400" />
-                    <span className="text-sm text-gray-600 dark:text-gray-300 mr-2">Language:</span>
-                    <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="bg-transparent text-sm font-bold text-gray-900 dark:text-white focus:outline-none cursor-pointer"
-                    >
-                        {languages.map(lang => <option key={lang} value={lang}>{lang}</option>)}
-                    </select>
+                    {/* Quick Actions Grid (Moved Up) */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <GlassCard
+                            onClick={() => setShowTriageModal(true)}
+                            className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-purple-500/50 group bg-purple-500/5"
+                        >
+                            <div className="p-4 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-3 group-hover:scale-110 transition-transform">
+                                <Sparkles className="text-purple-600 dark:text-purple-400" size={32} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">AI Symptom Checker</h3>
+                            <p className="text-xs text-gray-500 mt-1">Check symptoms instantly</p>
+                        </GlassCard>
+
+                        <GlassCard
+                            onClick={() => navigate('/patient/book-ambulance')}
+                            className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-red-500/50 group bg-red-500/5"
+                        >
+                            <div className="p-4 rounded-full bg-red-100 dark:bg-red-900/30 mb-3 group-hover:scale-110 transition-transform">
+                                <Ambulance className="text-red-600 dark:text-red-400" size={32} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Emergency SOS</h3>
+                            <p className="text-xs text-gray-500 mt-1">Call Ambulance</p>
+                        </GlassCard>
+
+                        <GlassCard
+                            onClick={() => setActiveTab('medications')}
+                            className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-green-500/50 group bg-green-500/5"
+                        >
+                            <div className="p-4 rounded-full bg-green-100 dark:bg-green-900/30 mb-3 group-hover:scale-110 transition-transform">
+                                <Pill className="text-green-600 dark:text-green-400" size={32} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Medication Tracker</h3>
+                            <p className="text-xs text-gray-500 mt-1">{prescriptions.length} Active</p>
+                        </GlassCard>
+
+                        <GlassCard
+                            onClick={() => setShowMedScanner(true)}
+                            className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500/50 group bg-blue-500/5"
+                        >
+                            <div className="p-4 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-3 group-hover:scale-110 transition-transform">
+                                <Scan className="text-blue-600 dark:text-blue-400" size={32} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Scan Medicine</h3>
+                            <p className="text-xs text-gray-500 mt-1">Identify & Translate</p>
+                        </GlassCard>
+
+                        <GlassCard
+                            onClick={() => setActiveTab('medicine-verifier')}
+                            className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-cyan-500/50 group bg-cyan-500/5"
+                        >
+                            <div className="p-4 rounded-full bg-cyan-100 dark:bg-cyan-900/30 mb-3 group-hover:scale-110 transition-transform">
+                                <ShieldCheck className="text-cyan-600 dark:text-cyan-400" size={32} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Verify Batch</h3>
+                            <p className="text-xs text-gray-500 mt-1">Blockchain Ledger</p>
+                        </GlassCard>
+                    </div>
                 </div>
             </div>
 
@@ -329,7 +410,6 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                             <h3 className="font-bold text-xl text-gray-900 dark:text-white">Medical Translator</h3>
                         </div>
                         <p className="text-sm text-gray-500 mb-4">Don't understand a term? Ask me!</p>
-
                         <form onSubmit={handleExplainTerm} className="relative mb-4">
                             <input
                                 type="text"
@@ -342,66 +422,14 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 {isExplaining ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Search size={16} />}
                             </button>
                         </form>
-
                         {explanation && (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-white/60 dark:bg-black/40 rounded-xl text-sm text-gray-700 dark:text-gray-300 border border-indigo-100 dark:border-indigo-900/30">
                                 <p className="font-semibold text-indigo-600 mb-1">Explanation ({language}):</p>
                                 {explanation}
                             </motion.div>
                         )}
-
-                        <div className="mt-auto pt-4 flex items-center justify-between">
-                            <span className="text-xs text-gray-400">Current Language:</span>
-                            <select
-                                value={language}
-                                onChange={(e) => setLanguage(e.target.value)}
-                                className="bg-transparent text-sm font-bold text-indigo-600 dark:text-indigo-400 focus:outline-none cursor-pointer"
-                            >
-                                {languages.map(lang => <option key={lang} value={lang}>{lang}</option>)}
-                            </select>
-                        </div>
                     </div>
                 </GlassCard>
-
-                {/* Quick Actions Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                    <GlassCard
-                        onClick={() => setShowTriageModal(true)}
-                        className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-purple-500/50 group bg-purple-500/5"
-                    >
-                        <div className="p-4 rounded-full bg-purple-100 dark:bg-purple-900/30 mb-3 group-hover:scale-110 transition-transform">
-                            <Sparkles className="text-purple-600 dark:text-purple-400" size={32} />
-                        </div>
-                        <h3 className="font-bold text-gray-900 dark:text-white">AI Symptom Checker</h3>
-                        <p className="text-xs text-gray-500 mt-1">Check symptoms instantly</p>
-                    </GlassCard>
-
-                    <GlassCard
-                        onClick={() => navigate('/patient/book-ambulance')}
-                        className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-red-500/50 group bg-red-500/5"
-                    >
-                        <div className="p-4 rounded-full bg-red-100 dark:bg-red-900/30 mb-3 group-hover:scale-110 transition-transform">
-                            <Ambulance className="text-red-600 dark:text-red-400" size={32} />
-                        </div>
-                        <h3 className="font-bold text-gray-900 dark:text-white">Emergency SOS</h3>
-                        <p className="text-xs text-gray-500 mt-1">Call Ambulance</p>
-                    </GlassCard>
-
-                    <GlassCard
-                        onClick={() => setActiveTab('medications')}
-                        className="p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-green-500/50 group bg-green-500/5 col-span-2"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30 group-hover:scale-110 transition-transform">
-                                <Pill className="text-green-600 dark:text-green-400" size={24} />
-                            </div>
-                            <div className="text-left">
-                                <h3 className="font-bold text-gray-900 dark:text-white">Medication Tracker</h3>
-                                <p className="text-xs text-gray-500">{prescriptions.length} Active Prescriptions</p>
-                            </div>
-                        </div>
-                    </GlassCard>
-                </div>
             </div>
 
             {/* Stats Row */}
@@ -420,7 +448,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 return dashboardJSX;
             case 'appointments':
                 return (
-                    <div className="space-y-6">
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                         <div className="flex justify-between items-center bg-white/10 p-6 rounded-2xl backdrop-blur-md">
                             <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">My Visits</h2>
                             <Button onClick={() => setShowModal('bookAppointment')} className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30">Book New</Button>
@@ -457,11 +485,11 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 <h3 className="text-2xl font-bold text-gray-500">No appointments found</h3>
                             </div>
                         )}
-                    </div>
+                    </motion.div>
                 );
             case 'records':
                 return (
-                    <div className="space-y-6">
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                         <div className="flex justify-between items-center">
                             <h2 className="text-3xl font-bold dark:text-white">Medical History</h2>
                             <div className="flex gap-2">
@@ -490,7 +518,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 ))}
                             </div>
                         ) : <p className="text-center text-gray-500">No records found.</p>}
-                    </div>
+                    </motion.div>
                 );
             case 'timeline':
                 return <HealthTimeline patient={patient} />;
@@ -498,7 +526,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 return <MedicationTracker patient={patient} />;
             case 'prescriptions':
                 return (
-                    <div className="space-y-6">
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                         <h2 className="text-3xl font-bold dark:text-white">Prescriptions</h2>
                         <div className="grid gap-4">
                             {prescriptions.map(pre => (
@@ -519,11 +547,11 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                             ))}
                             {prescriptions.length === 0 && <p className="text-gray-500 text-center">No prescriptions found.</p>}
                         </div>
-                    </div>
+                    </motion.div>
                 );
             case 'billing':
                 return (
-                    <div className="space-y-6">
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                         <h2 className="text-3xl font-bold dark:text-white">Billing & Payments</h2>
                         <div className="grid gap-4">
                             {billing.map(bill => (
@@ -546,10 +574,28 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 </GlassCard>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
                 );
             case 'heart-health':
                 return <HeartHealthDashboard />;
+            case 'early-detection':
+                return <EarlyDetectionModule />;
+            case 'health-twin':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 className="text-3xl font-bold dark:text-white">Digital Health Twin</h2>
+                                <p className="text-gray-500">Interactive realistic visualization of your body data.</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline">Rotate Left</Button>
+                                <Button variant="outline">Reset View</Button>
+                            </div>
+                        </div>
+                        <HealthTwinCanvas risks={healthRisks} onOrganClick={(organ: string) => alert(`Selected Organ: ${organ}`)} />
+                    </motion.div>
+                );
             case 'lab_results':
                 return (
                     <div className="space-y-6">
@@ -575,6 +621,18 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                         )}
                     </div>
                 );
+            case 'profile':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                        <Profile user={patient} updateUser={updateUser} />
+                    </motion.div>
+                );
+            case 'medicine-verifier':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                        <MedicineVerifier isEmbedded={true} />
+                    </motion.div>
+                );
             default:
                 return dashboardJSX;
         }
@@ -583,6 +641,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
     return (
         <div className="flex h-screen overflow-hidden font-sans relative">
             {/* GLOBAL ANIMATED BACKGROUND */}
+            <VoiceController />
             <div className="absolute inset-0 z-0 bg-gray-50 dark:bg-[#0a0a0a]">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-gray-50 to-cyan-50 dark:from-blue-900/10 dark:via-black dark:to-cyan-900/10 opacity-70 animate-gradient-xy"></div>
                 <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-400/20 rounded-full blur-[120px] pointer-events-none"></div>
@@ -609,7 +668,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg bg-gray-100 dark:bg-white/10">
                         <LayoutGrid size={24} className="text-gray-700 dark:text-white" />
                     </button>
-                    <span className="font-bold text-gray-900 dark:text-white">Shree Medicare</span>
+                    <span className="font-bold text-gray-900 dark:text-white">Omni Care</span>
                     <div className="flex items-center gap-2">
                         <div className="hidden lg:flex items-center gap-2 mr-4 bg-white/50 dark:bg-black/20 px-3 py-1.5 rounded-full border border-gray-200 dark:border-white/10">
                             <Globe size={16} className="text-gray-500" />
@@ -719,6 +778,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
 
             {showTriageModal && <TriageChatModal onClose={() => setShowTriageModal(false)} />}
             {showUploadModal && <UploadReport onClose={() => setShowUploadModal(false)} onSave={handleUploadSuccess} />}
+            {showMedScanner && <MedicationScanner onClose={() => setShowMedScanner(false)} />}
 
             {/* Summary Modal with Glassmorphism */}
             <AnimatePresence>
@@ -743,6 +803,8 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </motion.div>
                 )}
             </AnimatePresence>
+            {/* Voice Controller */}
+            <VoiceController />
         </div>
     );
 }

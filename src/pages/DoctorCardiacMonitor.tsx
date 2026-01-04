@@ -18,7 +18,7 @@ const DoctorCardiacMonitor = () => {
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 5000);
+        const interval = setInterval(fetchData, 1000); // 1-second update for "Live" feel
         return () => clearInterval(interval);
     }, []);
 

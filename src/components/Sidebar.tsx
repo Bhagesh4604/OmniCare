@@ -4,7 +4,7 @@ import React from 'react';
 import {
   LayoutDashboard, Users, UserCog, Pill, DollarSign, Activity,
   FileText, Stethoscope, Scissors, CreditCard, Package, MessageSquare,
-  LogOut, Calendar, Sun, Moon, Clock, BarChartHorizontal, BedDouble, Syringe, Video, Info
+  LogOut, Calendar, Sun, Moon, Clock, BarChartHorizontal, BedDouble, Syringe, Video, Info, Microscope
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AboutModal from './AboutModal';
@@ -60,7 +60,9 @@ export default function Sidebar({ activeModule, setActiveModule, userType, onLog
     { id: 'payroll', label: 'Payroll', icon: CreditCard },
     { id: 'vendors', label: 'Vendors', icon: Package },
     { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'early-detection', label: 'Early Detection', icon: Microscope },
     { id: 'sms', label: 'SMS & Reports', icon: MessageSquare },
+    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
   ];
 
   const doctorMenuItems = [
@@ -73,9 +75,12 @@ export default function Sidebar({ activeModule, setActiveModule, userType, onLog
     { id: 'laboratory', label: 'Laboratory', icon: Activity },
     { id: 'medical-records', label: 'Medical Records', icon: FileText },
     { id: 'surgical', label: 'Surgical', icon: Scissors },
+    { id: 'early-detection', label: 'Early Detection', icon: Microscope },
+    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
   ];
 
   const menuItems = userType === 'admin' ? adminMenuItems : doctorMenuItems;
+
 
   useEffect(() => {
     const translateMenuItems = async () => {
@@ -100,10 +105,10 @@ export default function Sidebar({ activeModule, setActiveModule, userType, onLog
       <div className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-gray-800 flex flex-col font-sans transition-transform duration-300 ease-in-out z-50 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:relative lg:w-64`}>
         <div className="p-6 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center space-x-3">
-            <img src="/logo.svg" alt="Shree Medicare Logo" className="w-10 h-10 rounded-lg object-cover" />
+            <img src="/logo.svg" alt="Omni Care Logo" className="w-10 h-10 rounded-lg object-cover" />
             <div>
               <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-                Shree Medicare
+                Omni Care
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-500">HMS</p>
             </div>

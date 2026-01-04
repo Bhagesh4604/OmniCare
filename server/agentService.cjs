@@ -39,8 +39,12 @@ const tools = [
                 properties: {
                     destination: {
                         type: "string",
-                        enum: ["dashboard", "patients", "pharmacy", "laboratory", "medical-records", "surgical", "billing", "accounting", "employees", "oncology", "paramedic", "fleet", "patient-portal", "telemedicine"],
-                        description: "The internal route ID to navigate to"
+                        enum: [
+                            "dashboard", "patients", "pharmacy", "laboratory", "medical-records", "surgical", "billing", "accounting", "employees", "oncology", "paramedic", "fleet",
+                            "patient-portal", "telemedicine", "patient-appointments", "patient-medications", "patient-records", "patient-billing", "patient-ambulance",
+                            "patient-health-twin", "patient-heart-health", "patient-early-detection"
+                        ],
+                        description: "The internal route ID to navigate to. Use 'patient-health-twin' for Digital Twin/3D Body. 'patient-heart-health' for Heart Dashboard."
                     }
                 },
                 required: ["destination"]
@@ -112,24 +116,67 @@ const tools = [
                 required: ["patient_name"]
             }
         }
+    },
+    {
+        type: "function",
+        function: {
+            name: "book_ambulance",
+            description: "Book an emergency ambulance for the patient (SOS)",
+            parameters: {
+                type: "object",
+                properties: {},
+                required: []
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "check_symptoms",
+            description: "Open the symptom checker or triage chat",
+            parameters: {
+                type: "object",
+                properties: {},
+                required: []
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "check_appointments",
+            description: "Check for upcoming appointments",
+            parameters: {
+                type: "object",
+                properties: {},
+                required: []
+            }
+        }
     }
 ];
 
 // --- MAIN ENDPOINT ---
 router.post('/process', async (req, res) => {
-    const { message, context } = req.body;
+    const { message, context, language } = req.body;
     const { client, isGitHub } = getClient();
 
     if (!client) {
         return res.status(500).json({ reply: "Azure AI is not configured." });
     }
 
+    let langInstruction = "";
+    if (language === 'hi-IN') langInstruction = "The user is speaking Hindi. You MUST reply in Hindi (Devanagari script).";
+    else if (language === 'mr-IN') langInstruction = "The user is speaking Marathi. You MUST reply in Marathi (Devanagari script).";
+    else langInstruction = "The user is speaking English. Reply in English.";
+
     const systemPrompt = `You are "MedAssist", a helpful, friendly, and highly intelligent hospital AI agent. 
     You act like a human co-worker. 
-    1. Your responses should be conversational, professional but warm (e.g., "I'm checking that for you right now.", "I've pulled up the records.").
+    1. Your responses should be conversational, professional but warm.
     2. USE TOOLS whenever the user asks to do something (navigate, check info).
     3. If the user just says hello, reply back normally.
-    4. If you use a tool, reply with a confirmation message describing what you are doing.`;
+    4. If you use a tool, reply with a confirmation message describing what you are doing.
+    
+    IMPORTANT: ${langInstruction}`;
 
     try {
         const messages = [
@@ -175,6 +222,50 @@ router.post('/process', async (req, res) => {
                 // Make navigation responses smoother
                 const dest = args.destination.replace('-', ' ');
                 dataReply = `Navigating to ${dest}...`;
+            }
+            else if (funcName === 'book_ambulance') {
+                // Return specialized action to trigger SOS flow
+                return res.json({
+                    reply: "I am initiating the emergency ambulance protocol. Redirecting you to the SOS page now.",
+                    action: { type: "navigate", payload: { destination: "patient-book-ambulance" } }
+                });
+            }
+            else if (funcName === 'check_symptoms') {
+                return res.json({
+                    reply: "Opening the Symptom Checker Triage. Please tell the AI how you are feeling.",
+                    action: { type: "open_modal", payload: { modal: "triage" } }
+                });
+            }
+            else if (funcName === 'check_appointments') {
+                // In a real app, we would query the DB here. For now, we return a general response
+                // and navigate them to the appointments tab so they can see.
+                dataReply = "I'm opening your appointments. You can see your upcoming visits here.";
+                return res.json({
+                    reply: dataReply,
+                    action: { type: "navigate", payload: { destination: "patient-appointments" } }
+                });
+            }
+            else if (funcName === 'book_ambulance') {
+                // Return specialized action to trigger SOS flow
+                return res.json({
+                    reply: "I am initiating the emergency ambulance protocol. Redirecting you to the SOS page now.",
+                    action: { type: "navigate", payload: { destination: "patient-book-ambulance" } }
+                });
+            }
+            else if (funcName === 'check_symptoms') {
+                return res.json({
+                    reply: "Opening the Symptom Checker Triage. Please tell the AI how you are feeling.",
+                    action: { type: "open_modal", payload: { modal: "triage" } }
+                });
+            }
+            else if (funcName === 'check_appointments') {
+                // In a real app, we would query the DB here. For now, we return a general response
+                // and navigate them to the appointments tab so they can see.
+                dataReply = "I'm opening your appointments. You can see your upcoming visits here.";
+                return res.json({
+                    reply: dataReply,
+                    action: { type: "navigate", payload: { destination: "patient-appointments" } }
+                });
             }
 
             // Return action for frontend to execute

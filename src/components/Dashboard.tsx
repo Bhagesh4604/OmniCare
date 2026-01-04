@@ -328,6 +328,7 @@ export default function Dashboard({ setActiveModule }: DashboardProps) {
               <QuickAction label="Schedule Surgery" icon={Scissors} onClick={() => setActiveModule('surgical')} />
               <QuickAction label="New Lab Test" icon={Activity} onClick={() => setActiveModule('laboratory')} />
               <QuickAction label="Check Pharmacy Stock" icon={Pill} onClick={() => setActiveModule('pharmacy')} />
+              <QuickAction label="AI Disease Screening" icon={Stethoscope} onClick={() => setActiveModule('early-detection')} />
             </div>
           </div>
 

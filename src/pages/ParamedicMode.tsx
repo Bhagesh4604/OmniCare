@@ -5,8 +5,9 @@ import useGeolocation from '../hooks/useGeolocation';
 import ParamedicMapView from '../components/ems/ParamedicMapView';
 import usePushNotifications from '../hooks/usePushNotifications';
 import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { Heart, Activity, FileText, CheckCircle, AlertTriangle, MapPin, Navigation, Building, Flag, Clock, Ambulance, History, XCircle, Sparkles, X, Mic, MicOff, Stethoscope, Camera } from 'lucide-react';
+import { Heart, Activity, FileText, CheckCircle, AlertTriangle, MapPin, Navigation, Building, Flag, Clock, Ambulance, History, XCircle, Sparkles, X, Mic, MicOff, Stethoscope, Camera, WifiOff, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import useOfflineSync from '../hooks/useOfflineSync';
 
 // --- Interfaces ---
 
@@ -138,7 +139,6 @@ const TripHistoryView: React.FC<TripHistoryViewProps> = ({ trips, onBack, isLoad
   );
 };
 
-// Icon component needed for the standby screen
 const RadioTower = ({ size, className }: { size: number, className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M4.9 19.1C3.3 17.4 2.5 15.2 2.5 13 2.5 7.8 6.8 3.5 12 3.5c2.2 0 4.4.9 6.1 2.5" />
@@ -180,8 +180,12 @@ const ParamedicMode: React.FC<ParamedicModeProps> = ({ user }) => {
   const [vitalsError, setVitalsError] = useState('');
   const [vitalsSuccess, setVitalsSuccess] = useState('');
 
+  // --- OFFLINE SYNC ---
+  const { isOnline, addToQueue, syncQueue, isSyncing } = useOfflineSync();
+
   const { isListening, startListening, stopListening } = useSpeechRecognition({
     commandMode: false,
+    language: 'en-US',
     onResult: (text: string) => processVoiceCommand(text)
   });
 
@@ -202,26 +206,21 @@ const ParamedicMode: React.FC<ParamedicModeProps> = ({ user }) => {
   // --- Voice Processing Logic ---
   const processVoiceCommand = (text: string) => {
     // Simple regex for pattern matching vitals
-    // Example: "Heart rate 80", "BP 120 80", "Blood pressure 120 over 80"
-
-    // Heart Rate
     const hrMatch = text.match(/(?:heart rate|pulse)\s+(\d+)/i);
     if (hrMatch) setHeartRate(hrMatch[1]);
 
-    // Blood Pressure (Format: "120 over 80" or "120 80")
     const bpMatch = text.match(/(?:bp|blood pressure)\s+(\d+)\s+(?:over|by|\s)?\s*(\d+)/i);
     if (bpMatch) {
       setBpSystolic(bpMatch[1]);
       setBpDiastolic(bpMatch[2]);
     }
 
-    // Append to notes if not a specific vital command, or just append everything for context
     if (!text.includes('heart rate') && !text.includes('blood pressure')) {
       setNotes(prev => (prev ? prev + ' ' + text : text));
     }
   };
 
-  // --- API Functions (Same as before, cleaned up) ---
+  // --- API Functions ---
   const fetchTripHistory = async () => {
     if (!user || !user.id) return;
     setLoadingHistory(true); setErrorHistory('');
@@ -294,13 +293,37 @@ const ParamedicMode: React.FC<ParamedicModeProps> = ({ user }) => {
     } catch (e) { }
   };
 
+  // --- OFFLINE-AWARE HANDLER ---
   const handleSubmitVitals = async () => {
     if (!myTrip) return;
     setSubmittingVitals(true);
+
+    // Prepare Payload
+    const payload = {
+      trip_id: myTrip.trip_id,
+      heart_rate: heartRate ? parseInt(heartRate) : null,
+      blood_pressure_systolic: bpSystolic ? parseInt(bpSystolic) : null,
+      blood_pressure_diastolic: bpDiastolic ? parseInt(bpDiastolic) : null,
+      notes
+    };
+
+    // 1. Check Offline Status
+    if (!isOnline) {
+      addToQueue(apiUrl('/api/ems/vitals'), payload);
+
+      // Mock Success UI
+      setVitalsSuccess('Saved Offline (Will sync later)');
+      setTimeout(() => setVitalsSuccess(''), 3000);
+      setHeartRate(''); setBpSystolic(''); setBpDiastolic(''); setNotes('');
+      setSubmittingVitals(false);
+      return;
+    }
+
+    // 2. Online Submission
     try {
       const res = await fetch(apiUrl('/api/ems/vitals'), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trip_id: myTrip.trip_id, heart_rate: heartRate ? parseInt(heartRate) : null, blood_pressure_systolic: bpSystolic ? parseInt(bpSystolic) : null, blood_pressure_diastolic: bpDiastolic ? parseInt(bpDiastolic) : null, notes })
+        body: JSON.stringify(payload)
       });
       if ((await res.json()).success) {
         setVitalsSuccess('Vitals Logged'); setTimeout(() => setVitalsSuccess(''), 3000);
@@ -390,6 +413,17 @@ const ParamedicMode: React.FC<ParamedicModeProps> = ({ user }) => {
         <div>
           <h1 className="text-xl font-black italic tracking-tighter">EMS<span className="text-blue-500">HERO</span></h1>
           <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+            {/* OFFLINE INDICATOR */}
+            {!isOnline && (
+              <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 rounded animate-pulse font-bold flex items-center gap-1">
+                <WifiOff size={10} /> OFFLINE MODE
+              </span>
+            )}
+            {isSyncing && (
+              <span className="px-2 py-0.5 bg-blue-500/20 text-blue-500 border border-blue-500/50 rounded font-bold flex items-center gap-1">
+                <RefreshCw size={10} className="animate-spin" /> SYNCING
+              </span>
+            )}
             <span className="flex items-center gap-1"><Ambulance size={12} /> {activeShift.vehicle_name}</span>
             <span className="w-1 h-1 bg-gray-600 rounded-full"></span>
             <span className="text-green-400">Shift Active</span>
@@ -515,21 +549,6 @@ const ParamedicMode: React.FC<ParamedicModeProps> = ({ user }) => {
 
                   <button onClick={handleSubmitVitals} disabled={submittingVitals} className="w-full py-4 bg-green-600 hover:bg-green-700 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
                     <CheckCircle /> {submittingVitals ? 'Syncing...' : 'Log Vitals'}
-                  </button>
-                </div>
-              )}
-
-              {activeTab === 'handover' && (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
-                  <div className="p-6 bg-purple-500/20 rounded-full border border-purple-500/50">
-                    <Sparkles size={48} className="text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">AI Handover Generator</h3>
-                    <p className="text-gray-400 mt-2 max-w-xs mx-auto">Instantly generate a professional SBAR report for the ER team using collected vitals.</p>
-                  </div>
-                  <button onClick={handleGenerateReport} disabled={isGeneratingReport} className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold shadow-lg shadow-purple-900/50 transition-all hover:scale-105 active:scale-95">
-                    {isGeneratingReport ? 'Generating Report...' : 'Generate SBAR Report'}
                   </button>
                 </div>
               )}

@@ -1,14 +1,15 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const pool = mysql.createPool({
   connectionLimit: 5,
-  host: process.env.MYSQL_ADDON_HOST || process.env.DB_HOST,
+  host: (process.env.MYSQL_ADDON_HOST || process.env.DB_HOST) === 'localhost' ? '127.0.0.1' : (process.env.MYSQL_ADDON_HOST || process.env.DB_HOST),
   user: process.env.MYSQL_ADDON_USER || process.env.DB_USER,
   password: process.env.MYSQL_ADDON_PASSWORD || process.env.DB_PASSWORD,
   database: process.env.MYSQL_ADDON_DB || process.env.DB_NAME,
-  timezone: 'UTC',
+  timezone: '+00:00',
+  connectTimeout: 10000,
   ssl: (process.env.DB_SSL === 'true' || (process.env.DB_HOST && process.env.DB_HOST.includes('azure.com'))) ? {
     rejectUnauthorized: false
   } : undefined

@@ -207,7 +207,7 @@ export default function EmployeeManagement() {
         setIsGenerating(true);
         setGeneratedEmail('');
         const deptName = departments.find(d => d.id == employee.departmentId)?.name || 'their new';
-        const systemPrompt = "You are an HR Manager for 'Shree Medicare Hospital'. Your tone is professional, welcoming, and informative.";
+        const systemPrompt = "You are an HR Manager for 'Omni Care Hospital'. Your tone is professional, welcoming, and informative.";
         const userQuery = `Draft a welcome/onboarding email for a new employee named ${employee.firstName} ${employee.lastName} who is joining as a ${employee.position} in the ${deptName} department. Their start date is ${new Date(employee.hireDate).toLocaleDateString()}. Include some brief welcome text, a note about what to expect on their first day (like meeting the team), and who their point of contact is.`;
 
         try {
@@ -399,6 +399,14 @@ export default function EmployeeManagement() {
                                         <option value="on_leave" className="text-black">On Leave</option>
                                     </select>
                                 </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Phone</label>
+                                    <input name="phone" value={selectedEmployee.phone || ''} onChange={(e) => handleInputChange(e, 'edit')} className="w-full p-3 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none" placeholder="+91..." />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Email</label>
+                                    <input name="email" value={selectedEmployee.email || ''} onChange={(e) => handleInputChange(e, 'edit')} className="w-full p-3 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500/50 outline-none" />
+                                </div>
                             </div>
                             <div className="flex justify-end gap-4 pt-6 mt-6 border-t border-gray-100 dark:border-white/10">
                                 <button type="button" onClick={() => setModal(null)} className="px-6 py-2 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">Cancel</button>
@@ -433,6 +441,10 @@ export default function EmployeeManagement() {
                                 <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Email</p>
                                     <p className="text-lg font-bold text-gray-900 dark:text-white">{selectedEmployee.email}</p>
+                                </div>
+                                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                                    <p className="text-xs font-bold text-gray-500 uppercase mb-1">Phone</p>
+                                    <p className="text-lg font-bold text-gray-900 dark:text-white">{selectedEmployee.phone || 'N/A'}</p>
                                 </div>
                                 <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
                                     <p className="text-xs font-bold text-gray-500 uppercase mb-1">Status</p>

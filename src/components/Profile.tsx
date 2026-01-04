@@ -20,7 +20,11 @@ const Profile = ({ user, updateUser }) => {
     formData.append('profilePhoto', file);
 
     try {
-      const response = await fetch(apiUrl(`/api/employees/${user.id}/upload-photo`), {
+      const endpoint = user.role === 'patient'
+        ? `/api/patients/${user.id}/upload-photo`
+        : `/api/employees/${user.id}/upload-photo`;
+
+      const response = await fetch(apiUrl(endpoint), {
         method: 'POST',
         body: formData,
       });
@@ -42,12 +46,12 @@ const Profile = ({ user, updateUser }) => {
     <div className={`p-8 font-sans min-h-full transition-colors duration-300 ${theme === 'dark' ? 'bg-black text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-2xl mx-auto bg-card border border-border rounded-2xl shadow-lg p-8">
         <h1 className="text-3xl font-bold mb-6 text-foreground">My Profile</h1>
-        
+
         <div className="flex flex-col items-center mb-8">
           <div className="relative w-32 h-32 group mb-4">
-            <img 
-              src={profileImageUrl ? `${apiUrl('')}${profileImageUrl}` : `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=1c1c1e&color=a0a0a0&bold=true`} 
-              alt="Profile" 
+            <img
+              src={profileImageUrl ? `${apiUrl('')}${profileImageUrl}` : `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=1c1c1e&color=a0a0a0&bold=true`}
+              alt="Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-primary"
             />
             <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} className="hidden" accept="image/*" />
@@ -61,13 +65,24 @@ const Profile = ({ user, updateUser }) => {
         </div>
 
         <div className="space-y-4">
-            <h3 className="text-xl font-bold text-foreground">Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground">
+          <h3 className="text-xl font-bold text-foreground">Personal Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground">
+            {user.role === 'patient' ? (
+              <>
+                <p><strong>MRN:</strong> {user.mrn || 'N/A'}</p>
+                <p><strong>Phone:</strong> {user.phone || 'N/A'}</p>
+                <p><strong>Gender:</strong> {user.gender || 'N/A'}</p>
+                <p><strong>Date of Birth:</strong> {user.dateOfBirth ? new Date(user.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+              </>
+            ) : (
+              <>
                 <p><strong>Employee ID:</strong> {user.employeeId}</p>
                 <p><strong>Phone:</strong> {user.phone || 'N/A'}</p>
                 <p><strong>Department:</strong> {user.departmentName || 'N/A'}</p>
                 <p><strong>Hire Date:</strong> {user.hireDate ? new Date(user.hireDate).toLocaleDateString() : 'N/A'}</p>
-            </div>
+              </>
+            )}
+          </div>
         </div>
 
       </div>

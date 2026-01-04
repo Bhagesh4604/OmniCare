@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "isVerified": true,
+  "verificationMsg": "✅ Verified by OmniCare Ledger",
+  "marketData": {
+    "govtPrice": 45,
+    "isFairPrice": false,
+    "avgSaving": 0
+  },
+  "history": [
+    {
+      "index": 10,
+      "timestamp": "2026-01-04T07:17:39.902Z",
+      "event": "BATCH_CREATED",
+      "details": {
+        "event": "BATCH_CREATED",
+        "medicineId": 1,
+        "batchNumber": "BATCH-EXPENSIVE-1767511059865",
+        "manufacturer": "Greedy Pharma Inc.",
+        "expiryDate": "2026-12-31",
+        "quantity": 500,
+        "price": 60,
+        "timestamp": 1767511059902
+      },
+      "hash": "1c6ee11fba665891fcd5a72e47c4d8fa7a9e6e5c4d773867000c8fd9236ab306",
+      "isGenesis": false
+    }
+  ]
+}

@@ -51,9 +51,10 @@ const TrackAmbulance = ({ user }) => {
   useWebSocket(handleWebSocketMessage);
 
   const fetchTripStatus = async () => {
-    if (!user || !user.id) return;
+    const pId = user?.id || user?.patientId || user?.userId;
+    if (!pId) return;
     try {
-      const response = await fetch(apiUrl(`/api/ems/patient/my-trip-status?patientId=${user.id}`));
+      const response = await fetch(apiUrl(`/api/ems/patient/my-trip-status?patientId=${pId}`));
       const data = await response.json();
       if (data.success && data.trip) {
         setTrip(data.trip);

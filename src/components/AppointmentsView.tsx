@@ -61,12 +61,22 @@ export default function AppointmentsView({ user }) {
 
     const fetchAppointments = async () => {
         try {
-            const endpoint = isAdmin ? '/api/appointments' : `/api/appointments?patientId=${user?.id}`;
-            const res = await fetch(apiUrl('/api/appointments'));
+            let endpoint = '/api/appointments/all'; // Default for Admin
+            if (user?.role === 'doctor') {
+                endpoint = `/api/appointments/doctor/${user.id}`;
+            } else if (user?.role === 'patient') {
+                // Fallback for patient if they ever access this (though likely they use PatientDashboard)
+                endpoint = `/api/portal/my-appointments/${user.id}`;
+            }
+
+            console.log("Fetching appointments from:", endpoint);
+            const res = await fetch(apiUrl(endpoint));
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
             setAppointments(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Failed to fetch appointments:', err);
+            setAppointments([]);
         }
     };
 

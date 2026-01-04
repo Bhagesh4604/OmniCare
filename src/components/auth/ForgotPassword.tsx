@@ -89,7 +89,7 @@ export default function ForgotPassword({ setAuthMode }) {
       </motion.div>
 
       <p className="absolute bottom-8 text-center text-gray-400 text-sm">
-        Shree Medicare Management System &copy; 2026
+        Omni Care Management System &copy; 2026
       </p>
     </div>
   );

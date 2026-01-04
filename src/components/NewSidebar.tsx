@@ -90,14 +90,16 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
     { id: 'payroll', label: 'Payroll', icon: CreditCard },
     { id: 'vendors', label: 'Vendors', icon: Package },
     { id: 'inventory', label: 'Inventory', icon: Package },
+    { id: 'early-detection', label: 'Early Detection', icon: Microscope },
     { id: 'sms', label: 'SMS & Reports', icon: MessageSquare },
+    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
     directionsMenuItem,
   ];
 
   const doctorMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'cardiac-monitor', label: 'Heart Monitor', icon: Activity },
-    { id: 'oncology-screening', label: 'Oncology AI', icon: Microscope }, // New Module
+    { id: 'early-detection', label: 'Early Detection', icon: Microscope }, // Unified Module
     { id: 'my-schedule', label: 'My Schedule', icon: Clock },
     { id: 'appointments', label: 'Appointments', icon: Calendar },
     { id: 'telemedicine', label: 'Telemedicine', icon: Video },
@@ -106,6 +108,7 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
     { id: 'laboratory', label: 'Laboratory', icon: Activity },
     { id: 'medical-records', label: 'Medical Records', icon: FileText },
     { id: 'surgical', label: 'Surgical', icon: Scissors }, // Updated from Scissor
+    { id: 'whatsapp-simulator', label: 'WhatsApp Sim', icon: MessageSquare },
     directionsMenuItem,
   ];
 
@@ -119,6 +122,7 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
     { id: 'billing', label: 'Payments', icon: DollarSign },
     { id: 'medications', label: 'Tracker', icon: Clock },
     { id: 'timeline', label: 'Timeline', icon: BarChartHorizontal },
+    { id: 'early-detection', label: 'Risk Screening', icon: Microscope }, // Added for Patients
     directionsMenuItem,
   ];
 
@@ -175,7 +179,7 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
             </div>
             <div>
               <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
-                Shree Medicare
+                Omni Care
               </h1>
               <p className="text-xs text-blue-500 font-medium tracking-wider uppercase">Health Portal</p>
             </div>
@@ -211,7 +215,10 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
             </div>
 
             <button
-              onClick={() => setActiveModule('profile')}
+              onClick={() => {
+                setActiveModule('profile');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
               className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-white/10 transition-colors group"
             >
               <img

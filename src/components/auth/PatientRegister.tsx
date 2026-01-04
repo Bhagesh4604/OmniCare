@@ -108,7 +108,7 @@ export default function PatientRegister({ setAuthMode }) {
               <UserPlus className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-white tracking-tight">Create Account</h2>
-            <p className="text-gray-400 text-base">Join Shree Medicare for seamless care</p>
+            <p className="text-gray-400 text-base">Join Omni Care for seamless care</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -217,7 +217,7 @@ export default function PatientRegister({ setAuthMode }) {
         </motion.div>
 
         <p className="text-center text-gray-600 text-sm mt-8">
-          Shree Medicare Management System &copy; 2026
+          Omni Care Management System &copy; 2026
         </p>
       </motion.div>
     </div>

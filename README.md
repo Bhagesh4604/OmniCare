@@ -1,4 +1,4 @@
-# Shree Medicare HMS (Frontend + Server)
+# Omni Care HMS (Frontend + Server)
 
 Quick start:
 

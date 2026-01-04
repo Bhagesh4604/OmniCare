@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import apiUrl from '@/config/api';
+import { AuroraBackground } from '../ui/AuroraBackground';
 
 export default function StaffLogin({ onLogin }) {
   const navigate = useNavigate();
@@ -63,19 +64,11 @@ export default function StaffLogin({ onLogin }) {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-black text-white font-sans overflow-hidden">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-black to-gray-900/60" />
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay" />
-      </div>
-
+    <AuroraBackground className="bg-black text-white font-sans">
       {/* Back Button */}
-      <div className="absolute top-6 left-6 z-50">
+      <div className="fixed top-6 left-6 z-50">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/login')}
           className="group flex items-center gap-2 px-4 py-2 rounded-full text-white/80 bg-black/40 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all hover:pl-3 hover:text-white"
           aria-label="Back to Portal Selection"
         >
@@ -88,7 +81,7 @@ export default function StaffLogin({ onLogin }) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-md px-6"
+        className="relative z-10 w-full max-w-md px-6 mx-auto"
       >
         <motion.div
           variants={cardVariants}
@@ -179,9 +172,9 @@ export default function StaffLogin({ onLogin }) {
         </motion.div>
 
         <p className="text-center text-gray-500 text-sm mt-8">
-          Shree Medicare Management System &copy; 2026
+          Omni Care Management System &copy; 2026
         </p>
       </motion.div>
-    </div>
+    </AuroraBackground>
   );
 }
