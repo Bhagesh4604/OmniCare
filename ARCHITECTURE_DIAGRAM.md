@@ -16,24 +16,21 @@ graph TD
     classDef ai fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,rx:5,ry:5;
     classDef data fill:#e0f7fa,stroke:#006064,stroke-width:2px,rx:5,ry:5;
     classDef external fill:#eceff1,stroke:#546e7a,stroke-width:2px,rx:5,ry:5;
+    classDef cicd fill:#ffebee,stroke:#c62828,stroke-width:2px,rx:5,ry:5,stroke-dasharray: 5 5;
 
-    subgraph Clients ["🚀 Client Interfaces (Frontend)"]
+    subgraph Clients ["🚀 Client Interfaces"]
         PatWeb["💻 Patient Portal<br>(React + Vite)"]:::client
         DocWeb["💻 Doctor Portal<br>(React + Vite)"]:::client
         Mobile["📱 Paramedic App<br>(Offline-First PWA)"]:::client
         WA["💬 Patient WhatsApp<br>(Chat Interface)"]:::client
     end
 
-    subgraph Network ["🌐 API Gateway Layer"]
-        LB("⚖️ Load Balancer"):::gateway
-        WS_Gate("⚡ WebSocket Gateway"):::gateway
-    end
-
-    subgraph Backend ["⚙️ OmniCare Core (Node.js)"]
-        APIService["🔌 REST API Service<br>(Express.js)"]:::compute
-        AuthService["🔐 Auth Service<br>(JWT & Role-Based)"]:::compute
-        BlockService["🔗 Blockchain Ledger<br>(Drug Verification)"]:::compute
-        RealTime["🚨 Emergency Service<br>(Socket.io)"]:::compute
+    subgraph AzureWebApp ["☁️ Azure App Service (OmniCare)"]
+        direction TB
+        Server["⚙️ Node.js Server<br>(Express + Socket.io)"]:::compute
+        Static["📦 Static Assets<br>(Vite Build)"]:::compute
+        
+        Server --> |Serves| Static
     end
 
     subgraph AzureAI ["🧠 Microsoft Azure AI PaaS"]
@@ -55,37 +52,37 @@ graph TD
         Twilio["📱 Twilio API<br>(SMS / WhatsApp)"]:::external
         Maps["🗺️ Geolocation API<br>(Ambulance Tracking)"]:::external
     end
+    
+    subgraph Pipeline ["⚙️ CI/CD Pipeline"]
+        Repo["📂 GitHub Repository<br>(Source Code)"]:::cicd
+        Actions["⚡ GitHub Actions<br>(Build & Deploy Workflow)"]:::cicd
+    end
 
-    %% Connections
-    PatWeb -->|HTTPS / JSON| LB
-    DocWeb -->|HTTPS / JSON| LB
-    Mobile --> |Sync Data| LB
+    %% CI/CD Flow
+    Repo --> |Push to Main| Actions
+    Actions --> |Deploy Zip| AzureWebApp
+
+    %% Client Interactions
+    PatWeb -->|HTTPS| Server
+    DocWeb -->|HTTPS| Server
+    Mobile --> |Sync Data| Server
     WA --> |Webhook Msg| Twilio
-    Twilio --> |POST /webhook| LB
+    Twilio --> |POST /webhook| Server
     
-    LB --> APIService
-    PatWeb --> |Connect| WS_Gate
-    DocWeb --> |Connect| WS_Gate
-    WS_Gate --> RealTime
-
-    %% Backend Logic
-    APIService --> |Verify Token| AuthService
-    APIService --> |Verify Drug Hash| BlockService
-    
-    %% AI Flows (Detailed)
-    APIService --> |"Analyze Symptoms"| GPT
-    APIService --> |"Scan Skin Lesion"| Vision
-    APIService --> |"Voice Command"| Speech
-    APIService --> |"Digitize Report"| DocIntel
-    APIService --> |"Translate Chat"| Trans
+    %% AI Flows
+    Server --> |"Analyze Symptoms"| GPT
+    Server --> |"Scan Skin Lesion"| Vision
+    Server --> |"Voice Command"| Speech
+    Server --> |"Digitize Report"| DocIntel
+    Server --> |"Translate Chat"| Trans
 
     %% Data Flows
-    APIService --> |CRUD Patient Data| SQL
-    APIService --> |Upload/Fetch Images| Blob
-    RealTime --> |Pub/Sub Live Location| Redis
+    Server --> |CRUD Patient Data| SQL
+    Server --> |Upload/Fetch Images| Blob
+    Server --> |Pub/Sub Live Location| Redis
 
     %% External Logic
-    RealTime --> |Dispatch Coordinates| Maps
+    Server --> |Dispatch Coordinates| Maps
 ```
 
 ## 2. Detailed Technical Breakdown
