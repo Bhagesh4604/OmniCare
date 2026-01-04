@@ -56,6 +56,7 @@ export default function LaboratoryModule() {
     const [activeTab, setActiveTab] = useState('tests');
     const [labTests, setLabTests] = useState([]);
     const [patients, setPatients] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
     const [showSummaryModal, setShowSummaryModal] = useState(null);
@@ -68,6 +69,7 @@ export default function LaboratoryModule() {
     const [newTest, setNewTest] = useState({
         testNumber: `LAB${Math.floor(1000 + Math.random() * 9000)}`,
         patientId: '',
+        doctorId: '',
         testName: '',
         testDate: '',
     });
@@ -76,6 +78,7 @@ export default function LaboratoryModule() {
         if (activeTab === 'tests') {
             fetchLabTests();
             fetchPatients();
+            fetchDoctors();
         }
     }, [activeTab]);
 
@@ -91,6 +94,14 @@ export default function LaboratoryModule() {
             const response = await fetch(apiUrl('/api/patients'));
             setPatients(await response.json() || []);
         } catch (error) { console.error('Failed to fetch patients:', error); }
+    };
+
+    const fetchDoctors = async () => {
+        try {
+            const response = await fetch(apiUrl('/api/employees'));
+            const employees = await response.json() || [];
+            setDoctors(employees.filter((e: any) => e.role === 'doctor'));
+        } catch (error) { console.error('Failed to fetch doctors:', error); }
     };
 
     const handleInputChange = (e) => {
@@ -314,7 +325,14 @@ export default function LaboratoryModule() {
                                 <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">PATIENT</label>
                                 <select name="patientId" onChange={handleInputChange} className="w-full p-3 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white" required>
                                     <option value="">Select Patient</option>
-                                    {patients.map(p => <option key={p.id} value={p.id} className="text-black">{p.firstName} {p.lastName}</option>)}
+                                    {patients.map((p: any) => <option key={p.id} value={p.id} className="text-black">{p.firstName} {p.lastName}</option>)}
+                                </select>
+                            </div>
+                            <div className="col-span-2 md:col-span-2">
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1">DOCTOR</label>
+                                <select name="doctorId" onChange={handleInputChange} className="w-full p-3 bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white" required>
+                                    <option value="">Select Doctor</option>
+                                    {doctors.map((d: any) => <option key={d.id} value={d.id} className="text-black">Dr. {d.firstName} {d.lastName}</option>)}
                                 </select>
                             </div>
                             <div className="col-span-2">

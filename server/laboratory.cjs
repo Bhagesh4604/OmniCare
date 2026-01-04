@@ -18,10 +18,14 @@ router.get('/tests', (req, res) => {
 
 // POST a new lab test
 router.post('/tests/add', (req, res) => {
-  const { testNumber, patientId, testName, testDate } = req.body;
-  // Assuming doctorId 1 for now, this can be expanded
-  const sql = 'INSERT INTO lab_tests (testNumber, patientId, doctorId, testName, testDate, status) VALUES (?, ?, 1, ?, ?, ?)';
-  const params = [testNumber, patientId, testName, testDate, 'pending'];
+  const { testNumber, patientId, doctorId, testName, testDate } = req.body;
+
+  if (!doctorId) {
+    return res.status(400).json({ success: false, message: 'Doctor is required' });
+  }
+
+  const sql = 'INSERT INTO lab_tests (testNumber, patientId, doctorId, testName, testDate, status) VALUES (?, ?, ?, ?, ?, ?)';
+  const params = [testNumber, patientId, doctorId, testName, testDate, 'pending'];
   executeQuery(sql, params, (err, result) => {
     if (err) {
       console.error("SQL Error adding lab test:", err);

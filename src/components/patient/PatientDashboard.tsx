@@ -620,9 +620,22 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                 <input type="date" className="spatial-input w-full" onChange={(e) => setBookingDate(e.target.value)} />
                                 {bookingDate && (
                                     <div className="grid grid-cols-3 gap-2">
-                                        {['10:00 AM', '02:00 PM', '04:30 PM'].map(time => (
-                                            <div key={time} onClick={() => setBookingSlot(new Date().toISOString())} className={`p-2 rounded-lg text-xs text-center border cursor-pointer ${bookingSlot ? 'bg-blue-600 border-blue-500' : 'bg-white/5 border-white/10'}`}>{time}</div>
-                                        ))}
+                                        {availableSlots.length > 0 ? (
+                                            availableSlots.map((slot: any) => (
+                                                <div
+                                                    key={slot.startTime} // Assuming slot has startTime
+                                                    onClick={() => setBookingSlot(slot.startTime)}
+                                                    className={`p-2 rounded-lg text-xs text-center border cursor-pointer ${bookingSlot === slot.startTime
+                                                            ? 'bg-blue-600 border-blue-500 text-white'
+                                                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="col-span-3 text-sm text-gray-400 text-center py-2">No slots available for this date.</p>
+                                        )}
                                     </div>
                                 )}
                                 <Button className="w-full bg-blue-600 h-12 rounded-xl">Confirm Booking</Button>
