@@ -131,15 +131,24 @@
 
   /* --- SPATIAL GLASS (Vision Pro Style) --- */
   .spatial-bg {
-    @apply bg-slate-50 dark:bg-slate-950 bg-[radial-gradient(circle_at_center, _var(--tw-gradient-stops))] from-white via-slate-100 to-slate-200 dark:from-slate-900 dark:via-slate-950 dark:to-black text-gray-900 dark:text-white transition-colors duration-500;
+    @apply bg-slate-50 dark:bg-slate-950 from-white via-slate-100 to-slate-200 dark:from-slate-900 dark:via-slate-950 dark:to-black text-gray-900 dark:text-white transition-colors duration-500;
+    background-image: radial-gradient(circle at center, var(--tw-gradient-stops));
   }
 
   .spatial-card {
-    @apply bg-white/60 dark:bg-white/5 backdrop-blur-2xl border border-white/40 dark:border-white/5 shadow-xl dark:shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.36)] rounded-3xl transition-all duration-300;
+    @apply bg-white/60 dark:bg-white/5 backdrop-blur-2xl border border-white/40 dark:border-white/5 shadow-xl rounded-3xl transition-all duration-300;
+  }
+
+  .dark .spatial-card {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
   }
 
   .spatial-card:hover {
-    @apply bg-white/80 dark:bg-white/10 border-white/60 dark:border-white/20 transform scale-[1.01] shadow-2xl dark:shadow-[0_8px_32px_0_rgba(59, 130, 246, 0.15)];
+    @apply bg-white/80 dark:bg-white/10 border-white/60 dark:border-white/20 transform scale-[1.01] shadow-2xl;
+  }
+
+  .dark .spatial-card:hover {
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.15);
   }
 
   .spatial-input {

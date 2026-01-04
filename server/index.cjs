@@ -108,8 +108,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the React app build directory
-app.use(express.static(path.join(__dirname, '..', 'dist')));
+// Serve static files from the React app build directory - MOVED TO END
+// app.use(express.static(path.join(__dirname, '..', 'dist')));
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -200,16 +200,6 @@ app.post('/api/translate', async (req, res) => {
 
 console.log("✅ '/api/beds' route registered successfully.");
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get('*', (req, res, next) => {
-  if (req.url.startsWith('/api')) {
-    return next();
-  }
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
-});
-
-
 // --- SMART CONTRACTS ENDPOINT (New 2026 Feature) ---
 const smartContracts = require('./smartContracts.cjs');
 
@@ -236,16 +226,21 @@ app.post('/api/smart-contracts/verify-prescription', async (req, res) => {
 const distPath = path.join(__dirname, '..', 'dist');
 if (require('fs').existsSync(distPath)) {
   console.log('📂 Serving static files from:', distPath);
-  app.use(express.static(distPath));
+  // Serve static files with proper caching
+  app.use(express.static(distPath, { maxAge: '1y', immutable: true }));
 
   // Handle SPA routing: serve index.html for all non-API routes
   app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(distPath, 'index.html'));
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: 'API endpoint not found' });
     }
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
   console.log('⚠️ Distribution folder not found. Run "npm run build" to generate frontend assets.');
+  app.get('/', (req, res) => {
+    res.send('API Server is running. Frontend build not found. Run `npm run build`.');
+  });
 }
 
 // --- CHANGE 2: Listen on '0.0.0.0' for Render/Azure ---
