@@ -469,16 +469,26 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             case 'billing':
                 return (
                     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-                        <h2 className="text-3xl font-bold text-white">Billing</h2>
-                        {billing.map(bill => (
-                            <SpatialCard key={bill.billId} className="flex justify-between items-center">
-                                <div>
-                                    <p className="text-gray-400 text-sm">Invoice #{bill.billId}</p>
-                                    <p className="text-2xl font-bold text-white">${bill.amount}</p>
-                                </div>
-                                <Button className="bg-indigo-600">Pay Now</Button>
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Billing & Payments</h2>
+                        {billing.length > 0 ? (
+                            <div className="grid gap-4">
+                                {billing.map(bill => (
+                                    <SpatialCard key={bill.billId} className="flex justify-between items-center">
+                                        <div>
+                                            <p className="text-gray-400 text-sm">Invoice #{bill.billId}</p>
+                                            <p className="text-2xl font-bold text-gray-900 dark:text-white">${bill.amount}</p>
+                                        </div>
+                                        <Button className="bg-indigo-600">Pay Now</Button>
+                                    </SpatialCard>
+                                ))}
+                            </div>
+                        ) : (
+                            <SpatialCard className="text-center py-12">
+                                <DollarSign className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                                <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Outstanding Bills</p>
+                                <p className="text-gray-500 dark:text-gray-400">You're all caught up! No pending payments at this time.</p>
                             </SpatialCard>
-                        ))}
+                        )}
                     </motion.div>
                 );
             case 'health-twin':
