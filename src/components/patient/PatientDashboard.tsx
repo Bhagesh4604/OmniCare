@@ -51,8 +51,8 @@ const SpatialCard = ({ children, className = "", onClick }: any) => (
 const StatCard = ({ title, value, icon: Icon, colorClass = "text-blue-500", bgClass = "bg-blue-500/10" }) => (
     <SpatialCard className="flex items-center justify-between group">
         <div>
-            <p className="text-sm font-medium text-gray-400 mb-1 tracking-wide">{title}</p>
-            <p className="text-3xl font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-cyan-300 transition-all">{value}</p>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1 tracking-wide">{title}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:to-cyan-300 transition-all">{value}</p>
         </div>
         <div className={`p-4 rounded-2xl ${bgClass} backdrop-blur-md group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
             <Icon className={`${colorClass} drop-shadow-md`} size={24} />
@@ -324,7 +324,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                             <div className={`p-4 rounded-full ${item.bg} mb-3 group-hover:scale-110 transition-transform`}>
                                 <item.icon className={item.color} size={28} />
                             </div>
-                            <h3 className="font-bold text-white text-sm">{item.title}</h3>
+                            <h3 className="font-bold text-gray-700 dark:text-white text-sm">{item.title}</h3>
                         </SpatialCard>
                     ))}
                 </div>
@@ -335,20 +335,20 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 <SpatialCard className="flex flex-col h-full !bg-gradient-to-br from-blue-900/40 to-slate-900/40">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-500/20 rounded-xl"><Calendar className="text-blue-400" size={20} /></div>
-                        <h3 className="font-bold text-xl text-white">Next Visit</h3>
+                        <h3 className="font-bold text-xl text-gray-900 dark:text-white">Next Visit</h3>
                     </div>
 
                     {nextAppointment ? (
                         <div className="space-y-6 flex-1 flex flex-col justify-center">
                             <div>
-                                <p className="text-5xl font-bold text-blue-400 mb-1">{new Date(nextAppointment.appointmentDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</p>
-                                <p className="text-xl text-gray-300">{new Date(nextAppointment.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                <p className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-1">{new Date(nextAppointment.appointmentDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</p>
+                                <p className="text-xl text-gray-600 dark:text-gray-300">{new Date(nextAppointment.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
-                            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
-                                <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-xl">👨‍⚕️</div>
+                            <div className="flex items-center gap-4 bg-white/50 dark:bg-white/5 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
+                                <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-xl">👨‍⚕️</div>
                                 <div>
-                                    <p className="font-bold text-white text-lg">Dr. {nextAppointment.doctorName}</p>
-                                    <p className="text-sm text-gray-400">General Physician</p>
+                                    <p className="font-bold text-gray-900 dark:text-white text-lg">Dr. {nextAppointment.doctorName}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">General Physician</p>
                                 </div>
                             </div>
                             {nextAppointment.consultationType === 'virtual' && nextAppointment.roomUrl && (
@@ -367,10 +367,10 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 </SpatialCard>
 
                 {/* Medical Explainer Tool */}
-                <SpatialCard className="flex flex-col h-full !bg-gradient-to-br from-indigo-900/40 to-slate-900/40">
+                <SpatialCard className="flex flex-col h-full !bg-gradient-to-br from-indigo-50 dark:from-indigo-900/40 to-slate-50 dark:to-slate-900/40">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-indigo-500/20 rounded-xl"><Languages className="text-indigo-400" size={20} /></div>
-                        <h3 className="font-bold text-xl text-white">Medical Translator</h3>
+                        <h3 className="font-bold text-xl text-gray-900 dark:text-white">Medical Translator</h3>
                     </div>
 
                     <div className="space-y-4">
@@ -418,8 +418,8 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             case 'appointments':
                 return (
                     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-                        <div className="flex justify-between items-center p-6 rounded-3xl bg-white/5 border border-white/10">
-                            <h2 className="text-3xl font-bold text-white">My Visits</h2>
+                        <div className="flex justify-between items-center p-6 rounded-3xl bg-white/50 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">My Visits</h2>
                             <Button onClick={() => setShowModal('bookAppointment')} className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/20">Book New</Button>
                         </div>
                         <div className="grid gap-4">
@@ -428,7 +428,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                                     <div className="flex items-center gap-4">
                                         <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl border border-white/10">👨‍⚕️</div>
                                         <div>
-                                            <h3 className="font-bold text-xl text-white">Dr. {apt.doctorName}</h3>
+                                            <h3 className="font-bold text-xl text-gray-900 dark:text-white">Dr. {apt.doctorName}</h3>
                                             <p className="text-gray-400">{apt.reason || 'General Consultation'}</p>
                                             <div className="flex items-center gap-2 mt-2 text-sm text-blue-400">
                                                 <Calendar size={14} />
@@ -448,14 +448,14 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 return (
                     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-3xl font-bold text-white">Medical History</h2>
+                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Medical History</h2>
                             <Button onClick={() => setShowUploadModal(true)}><Upload className="mr-2" size={18} /> Upload Report</Button>
                         </div>
                         <div className="grid gap-4">
                             {records.map(rec => (
                                 <SpatialCard key={rec.recordId}>
                                     <div className="flex justify-between mb-4">
-                                        <h3 className="text-xl font-bold text-white">{rec.diagnosis}</h3>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{rec.diagnosis}</h3>
                                         <span className="text-sm text-gray-500">{new Date(rec.recordDate).toLocaleDateString()}</span>
                                     </div>
                                     <p className="text-gray-300 bg-white/5 p-4 rounded-xl border border-white/5">{rec.treatment}</p>
@@ -485,6 +485,60 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             case 'profile': return <Profile user={patient} updateUser={updateUser} />;
             case 'medicine-verifier': return <MedicineVerifier isEmbedded={true} />;
             case 'early-detection': return <EarlyDetectionModule />;
+            case 'heart-health':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                        <HeartHealthDashboard />
+                    </motion.div>
+                );
+            case 'prescriptions':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">My Prescriptions</h2>
+                        <div className="grid gap-4">
+                            {prescriptions.length > 0 ? prescriptions.map((pres: any) => (
+                                <SpatialCard key={pres.id || Math.random()}>
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 rounded-full bg-blue-500/20 text-blue-400"><Pill size={24} /></div>
+                                        <div>
+                                            <h3 className="font-bold text-lg text-gray-900 dark:text-white">{pres.medicationName}</h3>
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm">{pres.dosage} - {pres.frequency}</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-white/10 flex justify-between text-sm">
+                                        <span className="text-gray-500">Prescribed by Dr. {pres.doctorName}</span>
+                                        <span className="text-blue-500 dark:text-blue-400">{new Date(pres.dateIssued).toLocaleDateString()}</span>
+                                    </div>
+                                </SpatialCard>
+                            )) : <p className="text-gray-500 dark:text-gray-400">No active prescriptions.</p>}
+                        </div>
+                    </motion.div>
+                );
+            case 'lab_results':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Lab Results</h2>
+                            <Button onClick={() => setShowUploadModal(true)}><Upload className="mr-2" size={18} /> Upload Report</Button>
+                        </div>
+                        <div className="grid gap-4">
+                            {labResults.length > 0 ? labResults.map((lab: any) => (
+                                <SpatialCard key={lab.id || Math.random()}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-bold text-lg text-gray-900 dark:text-white">{lab.testName}</h3>
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm">{new Date(lab.testDate).toLocaleDateString()}</p>
+                                        </div>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${lab.status === 'completed' ? 'bg-green-500/20 text-green-600 dark:text-green-400' : 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'}`}>{lab.status}</span>
+                                    </div>
+                                    <div className="mt-4 bg-gray-50 dark:bg-black/20 p-3 rounded-lg border border-gray-100 dark:border-white/5">
+                                        <p className="text-gray-600 dark:text-gray-300 text-sm">{lab.resultSummary || "Results pending or file attached."}</p>
+                                    </div>
+                                </SpatialCard>
+                            )) : <p className="text-gray-500 dark:text-gray-400">No lab results found.</p>}
+                        </div>
+                    </motion.div>
+                );
             default: return dashboardJSX;
         }
     };
