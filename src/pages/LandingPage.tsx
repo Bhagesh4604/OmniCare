@@ -126,14 +126,14 @@ export default function LandingPage() {
           <div>
             <h4 className="font-bold text-slate-900 mb-6">Contact</h4>
             <div className="space-y-4 text-slate-500">
-              <p className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@shreemedicare.com</p>
-              <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> +91 123 456 7890</p>
-              <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Mumbai, India</p>
+              <p className="flex items-center gap-2"><Mail className="w-4 h-4" /> bhageshbiradar820@gmail.com</p>
+              <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> +917483159830</p>
+              <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Bangalore, India</p>
             </div>
           </div>
         </div>
         <div className="text-center text-slate-400 text-sm">
-          &copy; 2026 Omni Care. All rights reserved.
+          &copy; 2025 Omni Care. All rights reserved.
         </div>
       </footer>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import LanguageSwitcher from '../LanguageSwitcher';
 import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload, Scan } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fromZonedTime, format } from 'date-fns-tz';
@@ -664,23 +665,20 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden relative z-10">
                 {/* Mobile Header */}
-                <header className="lg:hidden p-4 flex justify-between items-center bg-white/50 dark:bg-black/50 backdrop-blur-md">
-                    <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg bg-gray-100 dark:bg-white/10">
-                        <LayoutGrid size={24} className="text-gray-700 dark:text-white" />
-                    </button>
-                    <span className="font-bold text-gray-900 dark:text-white">Omni Care</span>
-                    <div className="flex items-center gap-2">
-                        <div className="hidden lg:flex items-center gap-2 mr-4 bg-white/50 dark:bg-black/20 px-3 py-1.5 rounded-full border border-gray-200 dark:border-white/10">
-                            <Globe size={16} className="text-gray-500" />
-                            <select
-                                value={language}
-                                onChange={(e) => setLanguage(e.target.value)}
-                                className="bg-transparent text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none cursor-pointer"
-                            >
-                                {languages.map(lang => <option key={lang} value={lang}>{lang}</option>)}
-                            </select>
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                {/* Header (Desktop & Mobile) */}
+                <header className="p-4 flex justify-between items-center bg-white/50 dark:bg-black/50 backdrop-blur-md sticky top-0 z-30">
+                    <div className="flex items-center gap-3">
+                        <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg bg-gray-100 dark:bg-white/10">
+                            <LayoutGrid size={24} className="text-gray-700 dark:text-white" />
+                        </button>
+                        <span className="font-bold text-xl text-gray-900 dark:text-white hidden sm:block">Omni Care</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {/* Language Switcher - Global */}
+                        <LanguageSwitcher />
+
+                        <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20">
                             <Sun className="h-5 w-5 dark:hidden" />
                             <Moon className="h-5 w-5 hidden dark:block" />
                         </Button>

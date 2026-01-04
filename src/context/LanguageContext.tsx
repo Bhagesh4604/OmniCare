@@ -4,8 +4,14 @@ import apiUrl from '../config/api';
 const LanguageContext = createContext();
 
 export const LanguageProvider = ({ children }) => {
-    const [language, setLanguage] = useState('en');
+    // Initialize from localStorage or default to 'en'
+    const [language, setLanguage] = useState(() => localStorage.getItem('app_language') || 'en');
     const [translations, setTranslations] = useState({});
+
+    // Save to localStorage whenever language changes
+    useEffect(() => {
+        localStorage.setItem('app_language', language);
+    }, [language]);
 
     // Helper to translate a specific text using Azure Service or fallback
     const translate = async (text) => {
