@@ -18,7 +18,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
     ];
 
     return (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-t border-gray-200 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] pb-safe">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t-2 border-blue-500 dark:border-blue-400 shadow-[0_-4px_30px_rgba(59,130,246,0.3)]">
             <div className="grid grid-cols-5 h-20">
                 {navItems.map((item) => {
                     const isActive = activeTab === item.id;
@@ -44,15 +44,15 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
                                 <Icon
                                     size={24}
                                     className={`transition-colors ${isActive
-                                            ? 'text-blue-600 dark:text-blue-400'
-                                            : 'text-gray-500 dark:text-gray-400'
+                                        ? 'text-blue-600 dark:text-blue-400'
+                                        : 'text-gray-500 dark:text-gray-400'
                                         }`}
                                     strokeWidth={isActive ? 2.5 : 2}
                                 />
                                 <span
                                     className={`text-xs font-medium transition-colors ${isActive
-                                            ? 'text-blue-600 dark:text-blue-400'
-                                            : 'text-gray-500 dark:text-gray-400'
+                                        ? 'text-blue-600 dark:text-blue-400'
+                                        : 'text-gray-500 dark:text-gray-400'
                                         }`}
                                 >
                                     {item.label}

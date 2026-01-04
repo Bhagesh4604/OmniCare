@@ -581,7 +581,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scrollbar-hide">
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scrollbar-hide pb-24 lg:pb-8">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
@@ -589,7 +589,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} // Apple ease
-                            className="max-w-7xl mx-auto pb-20"
+                            className="max-w-7xl mx-auto"
                         >
                             {renderContent()}
                         </motion.div>
