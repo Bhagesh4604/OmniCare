@@ -23,7 +23,10 @@ router.post('/tests/add', (req, res) => {
   const sql = 'INSERT INTO lab_tests (testNumber, patientId, doctorId, testName, testDate, status) VALUES (?, ?, 1, ?, ?, ?)';
   const params = [testNumber, patientId, testName, testDate, 'pending'];
   executeQuery(sql, params, (err, result) => {
-    if (err) return res.status(500).json({ success: false, message: 'Failed to add lab test' });
+    if (err) {
+      console.error("SQL Error adding lab test:", err);
+      return res.status(500).json({ success: false, message: 'Failed to add lab test: ' + err.message });
+    }
     res.json({ success: true, message: 'Lab test added successfully!' });
   });
 });

@@ -166,8 +166,8 @@ export default function NewSidebar({ activeModule, setActiveModule, userType, on
                     ${isSidebarOpen ? 'translate-x-0 w-72 lg:w-64 px-4 lg:px-6' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:px-0'}
                     overflow-hidden shadow-2xl lg:shadow-none`}
       >
-        {/* Glassmorphism Background (Desktop only usually, but aiming for premium everywhere) */}
-        <div className="absolute inset-0 bg-white/60 dark:bg-black/40 backdrop-blur-2xl border-r border-white/20 dark:border-white/5 shadow-[20px_0_50px_rgba(0,0,0,0.1)] lg:rounded-r-3xl" />
+        {/* Glassmorphism Background (Spatial Style) */}
+        <div className="absolute inset-0 bg-white/10 dark:bg-black/30 backdrop-blur-3xl border-r border-white/10 dark:border-white/5 shadow-[20px_0_50px_rgba(0,0,0,0.3)] lg:rounded-r-3xl" />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col h-full">

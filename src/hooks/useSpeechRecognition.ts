@@ -52,15 +52,29 @@ export default function useSpeechRecognition({ commandMode = true, language = 'e
         const voices = window.speechSynthesis.getVoices();
 
         // Try to match voice to language
+        // Try to match voice to language
         let preferredVoice = null;
+
+        // 1. Language Specific Match
         if (languageRef.current.startsWith('hi')) {
-            preferredVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
+            preferredVoice = voices.find(v => (v.lang.includes('hi') || v.name.includes('Hindi')) && (v.name.includes('Female') || v.name.includes('Kalpana')));
         } else if (languageRef.current.startsWith('mr')) {
-            preferredVoice = voices.find(v => v.lang.includes('mr') || v.name.includes('Marathi'));
+            preferredVoice = voices.find(v => (v.lang.includes('mr') || v.name.includes('Marathi')) && (v.name.includes('Female') || v.name.includes('Kalpana')));
         }
 
+        // 2. Global Female Preference (Zira, Google US English, Samantha)
         if (!preferredVoice) {
-            preferredVoice = voices.find(v => v.name.includes('Neural') || v.name.includes('Google US English'));
+            preferredVoice = voices.find(v =>
+                v.name.includes('Microsoft Zira') ||
+                v.name.includes('Google US English') ||
+                v.name.includes('Samantha') ||
+                v.name.includes('Female')
+            );
+        }
+
+        // 3. Fallback to any high-quality voice
+        if (!preferredVoice) {
+            preferredVoice = voices.find(v => v.name.includes('Neural') || v.name.includes('English'));
         }
 
         if (preferredVoice) utterance.voice = preferredVoice;
