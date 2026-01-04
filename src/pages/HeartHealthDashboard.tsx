@@ -4,10 +4,7 @@ import { motion } from 'framer-motion';
 import { Activity, Heart, Smartphone, Wifi, Zap, Phone } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
-const apiUrl = (endpoint) => {
-    const baseUrl = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
-    return `${baseUrl}${endpoint}`;
-};
+import apiUrl from '@/config/api';
 
 const HeartHealthDashboard = () => {
     const { isDarkMode } = useTheme();

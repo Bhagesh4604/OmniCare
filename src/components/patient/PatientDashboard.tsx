@@ -539,6 +539,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                         </div>
                     </motion.div>
                 );
+            case 'timeline': return <HealthTimeline patient={patient} />;
             default: return dashboardJSX;
         }
     };
