@@ -2,51 +2,45 @@ const express = require('express');
 const router = express.Router();
 const { executeQuery } = require('./db.cjs');
 
-// Reusable function to send SMS using Azure Communication Services
-const { SmsClient } = require('@azure/communication-sms');
+// Reusable function to send SMS using Twilio
+const twilio = require('twilio');
 
 const sendSms = async (to, message) => {
-    const connectionString = process.env.ACS_CONNECTION_STRING;
-    const fromPhoneNumber = process.env.ACS_PHONE_NUMBER;
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
-    if (!connectionString || !fromPhoneNumber) {
-        throw new Error('Azure Communication Services variables (ACS_CONNECTION_STRING, ACS_PHONE_NUMBER) are not configured.');
+    if (!accountSid || !authToken || !fromPhoneNumber) {
+        // Fallback to Mock if config is missing (prevents crash)
+        console.warn('[SMS] Twilio variables not configured. Using MOCK mode.');
+        return { sid: 'MOCK_NO_CONFIG_' + Date.now(), success: true, isMock: true };
     }
 
-    const smsClient = new SmsClient(connectionString);
+    const client = new twilio(accountSid, authToken);
 
     let formattedTo = String(to).replace(/\D/g, '');
+    // Basic formatting for international numbers (defaulting to IN if 10 digits)
     if (formattedTo.length === 10) {
-        formattedTo = `+1${formattedTo}`;
+        formattedTo = `+91${formattedTo}`;
     } else if (!formattedTo.startsWith('+')) {
-        formattedTo = `+${formattedTo}`; // Assuming it might already be international format if length != 10
+        formattedTo = `+${formattedTo}`;
     }
 
     try {
-        console.log(`[ACS] Attempting to send SMS to ${formattedTo}...`);
-        const sendResults = await smsClient.send({
+        console.log(`[Twilio] Attempting to send SMS to ${formattedTo}...`);
+        const result = await client.messages.create({
+            body: message,
             from: fromPhoneNumber,
-            to: [formattedTo],
-            message: message
+            to: formattedTo
         });
 
-        for (const sendResult of sendResults) {
-            if (sendResult.successful) {
-                console.log(`[ACS] SMS sent successfully. MessageId: ${sendResult.messageId}`);
-                return { sid: sendResult.messageId, success: true };
-            } else {
-                console.error(`[ACS] SMS failed: ${sendResult.errorMessage}`);
-                throw new Error(sendResult.errorMessage);
-            }
-        }
-    } catch (error) {
-        console.error('[ACS] SMS Failed (Likely Credential/Network Issue). Switching to MOCK mode.');
-        console.error('[ACS] Error Details:', error.message);
-        console.warn(`[MOCK SMS] To: ${formattedTo}`);
-        console.warn(`[MOCK SMS] Message: ${message}`);
+        console.log(`[Twilio] SMS sent successfully. SID: ${result.sid}`);
+        return { sid: result.sid, success: true };
 
-        // Return success so the User Interface doesn't break during the demo
-        return { sid: 'MOCK_' + Date.now(), success: true, isMock: true };
+    } catch (error) {
+        console.error('[Twilio] SMS Failed.', error.message);
+        // Fallback to mock so UI doesn't break
+        return { sid: 'MOCK_FAIL_' + Date.now(), success: false, error: error.message, isMock: true };
     }
 };
 
