@@ -17,7 +17,7 @@ const MedicationCard = ({ item, onTrack }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className={`p-5 md:p-6 rounded-2xl border backdrop-blur-xl shadow-lg transition-all 
+            className={`p-5 md:p-6 rounded-2xl border backdrop-blur-xl shadow-lg transition-all
                 ${isTaken
                     ? 'bg-green-500/20 border-green-500/30 shadow-green-500/10'
                     : isSkipped
@@ -27,12 +27,12 @@ const MedicationCard = ({ item, onTrack }) => {
         >
             <div className="flex items-start justify-between">
                 <div>
-                    <p className="font-bold text-xl text-gray-900 dark:text-white">{item.medication}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">{item.dosage}</p>
+                    <p className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white">{item.medication}</p>
+                    <p className="text-base text-gray-500 dark:text-gray-400 mt-1 font-medium">{item.dosage}</p>
                 </div>
-                <div className={`flex items-center gap-1.5 text-sm font-bold px-3 py-1 rounded-full 
+                <div className={`flex items-center gap-1.5 text-base font-bold px-3 py-1 rounded-full
                     ${isTaken ? 'bg-green-500/20 text-green-500' : isSkipped ? 'bg-red-500/20 text-red-500' : 'bg-gray-100 dark:bg-white/10 text-gray-500'}`}>
-                    {isTaken ? <Check size={14} /> : isSkipped ? <X size={14} /> : <Clock size={14} />}
+                    {isTaken ? <Check size={18} /> : isSkipped ? <X size={18} /> : <Clock size={18} />}
                     {time}
                 </div>
             </div>

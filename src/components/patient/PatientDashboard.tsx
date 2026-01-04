@@ -22,6 +22,7 @@ import NewSidebar from '../NewSidebar';
 import VoiceController from '../VoiceController';
 import TiltCard from '../ui/TiltCard';
 import Profile from '../../components/Profile';
+import MobileBottomNav from '../MobileBottomNav';
 
 // --- ANIMATIONS & STYLES ---
 const containerVariants = {
@@ -307,8 +308,8 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </div>
                 </motion.div>
 
-                {/* Quick Actions Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {/* Quick Actions Grid - Mobile Optimized */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
                     {[
                         { title: 'Symptom Checker', icon: Sparkles, color: 'text-purple-400', bg: 'bg-purple-500/10', action: () => setShowTriageModal(true) },
                         { title: 'Emergency SOS', icon: Ambulance, color: 'text-red-400', bg: 'bg-red-500/10', action: () => navigate('/patient/book-ambulance') },
@@ -319,12 +320,12 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                         <SpatialCard
                             key={idx}
                             onClick={item.action}
-                            className="flex flex-col items-center justify-center text-center hover:bg-white/10 dark:hover:bg-white/5"
+                            className="flex flex-col items-center justify-center text-center hover:bg-white/10 dark:hover:bg-white/5 min-h-[100px] md:min-h-[80px] p-4 md:p-6"
                         >
-                            <div className={`p-4 rounded-full ${item.bg} mb-3 group-hover:scale-110 transition-transform`}>
-                                <item.icon className={item.color} size={28} />
+                            <div className={`p-3 md:p-4 rounded-full ${item.bg} mb-2 md:mb-3 group-hover:scale-110 transition-transform`}>
+                                <item.icon className={`${item.color} w-7 h-7 md:w-8 md:h-8`} />
                             </div>
-                            <h3 className="font-bold text-gray-700 dark:text-white text-sm">{item.title}</h3>
+                            <h3 className="font-bold text-gray-700 dark:text-white text-sm md:text-base leading-tight">{item.title}</h3>
                         </SpatialCard>
                     ))}
                 </div>
@@ -649,6 +650,13 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             {showTriageModal && <TriageChatModal onClose={() => setShowTriageModal(false)} />}
             {showUploadModal && <UploadReport onClose={() => setShowUploadModal(false)} onSave={handleUploadSuccess} />}
             {showMedScanner && <MedicationScanner onClose={() => setShowMedScanner(false)} />}
+
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onMenuClick={() => setSidebarOpen(true)}
+            />
         </div>
     );
 }

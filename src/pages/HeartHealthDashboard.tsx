@@ -141,21 +141,21 @@ const HeartHealthDashboard = () => {
                         Real-time monitoring & AI cardiac analysis.
                     </p>
                 </div>
-                <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <div className="flex flex-col gap-3 w-full md:w-auto">
                     <button
                         onClick={connectBluetooth}
-                        className="flex-1 md:flex-none items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all flex"
+                        className="w-full md:w-auto items-center justify-center gap-2 px-6 py-4 md:py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-xl hover:bg-blue-700 transition-all flex min-h-[56px] md:min-h-[48px] text-base"
                     >
-                        <Zap size={20} /> <span className="whitespace-nowrap">Pair Device</span>
+                        <Zap size={22} /> <span className="whitespace-nowrap">Pair Device</span>
                     </button>
                     <button
                         onClick={toggleSimulation}
-                        className={`flex-1 md:flex-none items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl hover:scale-105 active:scale-95 flex ${connected && isSimulationRunning
+                        className={`w-full md:w-auto items-center justify-center gap-2 px-6 py-4 md:py-3 rounded-2xl font-bold transition-all shadow-xl hover:scale-105 active:scale-95 flex min-h-[56px] md:min-h-[48px] text-base ${connected && isSimulationRunning
                             ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                             : 'bg-white dark:bg-white/10 text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-white/10'
                             }`}
                     >
-                        {connected && isSimulationRunning ? <Wifi className="animate-pulse" /> : <Smartphone />}
+                        {connected && isSimulationRunning ? <Wifi className="animate-pulse" size={22} /> : <Smartphone size={22} />}
                         {connected && isSimulationRunning ? 'Simulating...' : 'Simulate'}
                     </button>
                 </div>
@@ -179,12 +179,12 @@ const HeartHealthDashboard = () => {
                             {connected && <span className="px-3 py-1 bg-green-500/20 text-green-500 text-xs font-bold rounded-full animate-pulse">LIVE</span>}
                         </div>
                         <div>
-                            <span className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white">
+                            <span className="text-6xl md:text-5xl font-black tracking-tighter text-gray-900 dark:text-white">
                                 {connected && heartRate > 0 ? heartRate : '--'}
                             </span>
-                            <span className="text-lg text-gray-500 ml-2 font-bold">BPM</span>
+                            <span className="text-xl md:text-lg text-gray-500 ml-2 font-bold">BPM</span>
                         </div>
-                        <p className="text-sm text-gray-400 mt-2">72 BPM avg. resting rate today</p>
+                        <p className="text-base md:text-sm text-gray-400 mt-2">72 BPM avg. resting rate today</p>
 
                         <div className="absolute bottom-0 left-0 w-full h-16 opacity-20">
                             <svg className="w-full h-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -204,12 +204,12 @@ const HeartHealthDashboard = () => {
                             </div>
                         </div>
                         <div>
-                            <span className="text-5xl font-black tracking-tighter text-gray-900 dark:text-white">
+                            <span className="text-6xl md:text-5xl font-black tracking-tighter text-gray-900 dark:text-white">
                                 {connected ? spo2 : '--'}
                             </span>
-                            <span className="text-lg text-gray-500 ml-2 font-bold">%</span>
+                            <span className="text-xl md:text-lg text-gray-500 ml-2 font-bold">%</span>
                         </div>
-                        <p className="text-sm text-gray-400 mt-2">Blood Oxygen Saturation</p>
+                        <p className="text-base md:text-sm text-gray-400 mt-2">Blood Oxygen Saturation</p>
                     </motion.div>
 
                     {/* AI Risk Analysis */}
