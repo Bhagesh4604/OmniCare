@@ -311,11 +311,11 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 {/* Quick Actions Grid - Mobile Optimized */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
                     {[
+                        { title: 'Body Monitor', icon: HeartPulse, color: 'text-pink-400', bg: 'bg-pink-500/10', action: () => navigate('/patient/body-monitor') },
                         { title: 'Symptom Checker', icon: Sparkles, color: 'text-purple-400', bg: 'bg-purple-500/10', action: () => setShowTriageModal(true) },
                         { title: 'Emergency SOS', icon: Ambulance, color: 'text-red-400', bg: 'bg-red-500/10', action: () => navigate('/patient/book-ambulance') },
                         { title: 'Medications', icon: Pill, color: 'text-green-400', bg: 'bg-green-500/10', action: () => setActiveTab('medications') },
                         { title: 'Scan Medicine', icon: Scan, color: 'text-blue-400', bg: 'bg-blue-500/10', action: () => setShowMedScanner(true) },
-                        { title: 'Verify Batch', icon: ShieldCheck, color: 'text-cyan-400', bg: 'bg-cyan-500/10', action: () => setActiveTab('medicine-verifier') },
                     ].map((item, idx) => (
                         <SpatialCard
                             key={idx}
