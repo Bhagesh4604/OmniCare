@@ -108,7 +108,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
 
     // Language & Explain Features
     const [language, setLanguage] = useState('English');
-    const languages = ['English', 'Spanish', 'French', 'Hindi', 'German', 'Chinese'];
+    const languages = ['English', 'Hindi', 'Tamil', 'Telugu', 'Malayalam', 'Kannada', 'Bengali', 'Marathi'];
     const [explainTerm, setExplainTerm] = useState('');
     const [explanation, setExplanation] = useState('');
     const [isExplaining, setIsExplaining] = useState(false);
@@ -297,7 +297,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
             <div className="grid grid-cols-1 gap-6">
                 {/* Greeting Banner */}
                 <motion.div variants={itemVariants} className="relative p-6 md:p-10 rounded-[2.5rem] overflow-hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-2xl border border-white/10">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] animate-pulse"></div>
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px]"></div>
                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
                             <h1 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight">Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 18 ? 'Afternoon' : 'Evening'}, {patient?.firstName}</h1>
@@ -379,6 +379,20 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </div>
 
                     <div className="space-y-4">
+                        {/* Language Selector */}
+                        <div>
+                            <label className="text-sm text-gray-500 dark:text-gray-400 mb-2 block font-medium">Select Language</label>
+                            <select
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className="spatial-input w-full cursor-pointer"
+                            >
+                                {languages.map(lang => (
+                                    <option key={lang} value={lang} className="bg-white dark:bg-slate-800">{lang}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         <input
                             type="text"
                             placeholder="Type a medical term (e.g. Hypertension)..."
@@ -387,7 +401,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                             className="spatial-input w-full"
                         />
                         <Button onClick={handleExplainTerm} disabled={isExplaining || !explainTerm} className="w-full bg-indigo-600 hover:bg-indigo-500 h-12 rounded-xl text-lg font-medium">
-                            {isExplaining ? 'Translating...' : 'Explain in Simple English'}
+                            {isExplaining ? 'Translating...' : `Explain in Simple ${language}`}
                         </Button>
                     </div>
 
@@ -576,9 +590,7 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
         <div className="flex h-screen overflow-hidden font-sans spatial-bg text-white selection:bg-blue-500/30">
             {/* VoiceController removed (handled globally in App.tsx) */}
 
-            {/* Ambient Light/Glows */}
-            <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-            <div className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+            {/* Ambient Light/Glows - Removed to fix blinking issue */}
 
             <div className="relative z-20 h-full">
                 <NewSidebar
