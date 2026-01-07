@@ -153,6 +153,8 @@ app.use('/api/speech', require('./speechToken.cjs')); // Azure Speech Token
 app.use('/api/agent', require('./agentService.cjs')); // NEW AI AGENT
 app.use('/api/whatsapp', require('./whatsappService.cjs')); // WhatsApp Integration
 app.use('/api/monitoring', require('./monitoringService.cjs')); // LIVE MONITORING
+app.use('/api/health-risk', require('./healthRiskPredictor.cjs')); // AI DISEASE RISK PREDICTOR
+app.use('/api/mental-health', require('./mentalHealthCrisis.cjs')); // MENTAL HEALTH CRISIS DETECTION
 app.use('/api/health', require('./healthCheck.cjs')); // Health Check logic
 
 // === Phase 3: Blockchain & Analytics ===

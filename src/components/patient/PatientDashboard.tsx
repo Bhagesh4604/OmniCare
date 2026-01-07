@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import LanguageSwitcher from '../LanguageSwitcher';
-import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload, Scan } from 'lucide-react';
+import { Calendar, FileText, DollarSign, LogOut, Plus, X, User, Clock, Bell, Pill, Edit, Beaker, Sparkles, Download, ArrowRight, BookUser, ShieldCheck, HeartPulse, Sun, Moon, LayoutGrid, ArrowLeft, Ambulance, Globe, Languages, Search, Video, Upload, Scan, Target, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fromZonedTime, format } from 'date-fns-tz';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,9 @@ import HealthTwinCanvas from '../3d/HealthTwin';
 import EarlyDetectionModule from '../EarlyDetectionModule';
 import MedicationScanner from './MedicationScanner';
 import MedicineVerifier from '../../components/blockchain/MedicineVerifier';
+import DiseaseRiskPredictor from './DiseaseRiskPredictor';
+import MentalHealthDashboard from './MentalHealthDashboard';
+
 
 import NewSidebar from '../NewSidebar';
 import VoiceController from '../VoiceController';
@@ -309,12 +312,13 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                 </motion.div>
 
                 {/* Quick Actions Grid - Mobile Optimized */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
                     {[
+                        { title: 'Disease Risk', icon: Target, color: 'text-rose-400', bg: 'bg-rose-500/10', action: () => setActiveTab('disease-risk') },
+                        { title: 'Mental Wellness', icon: Brain, color: 'text-indigo-400', bg: 'bg-indigo-500/10', action: () => setActiveTab('mental-health') },
                         { title: 'Body Monitor', icon: HeartPulse, color: 'text-pink-400', bg: 'bg-pink-500/10', action: () => navigate('/patient/body-monitor') },
                         { title: 'Symptom Checker', icon: Sparkles, color: 'text-purple-400', bg: 'bg-purple-500/10', action: () => setShowTriageModal(true) },
                         { title: 'Emergency SOS', icon: Ambulance, color: 'text-red-400', bg: 'bg-red-500/10', action: () => navigate('/patient/book-ambulance') },
-                        { title: 'Medications', icon: Pill, color: 'text-green-400', bg: 'bg-green-500/10', action: () => setActiveTab('medications') },
                         { title: 'Scan Medicine', icon: Scan, color: 'text-blue-400', bg: 'bg-blue-500/10', action: () => setShowMedScanner(true) },
                     ].map((item, idx) => (
                         <SpatialCard
@@ -551,6 +555,18 @@ export default function PatientDashboard({ patient, onLogout, updateUser }) {
                     </motion.div>
                 );
             case 'timeline': return <HealthTimeline patient={patient} />;
+            case 'disease-risk':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                        <DiseaseRiskPredictor patientId={patient?.id} />
+                    </motion.div>
+                );
+            case 'mental-health':
+                return (
+                    <motion.div variants={containerVariants} initial="hidden" animate="visible">
+                        <MentalHealthDashboard patientId={patient?.id} />
+                    </motion.div>
+                );
             default: return dashboardJSX;
         }
     };
