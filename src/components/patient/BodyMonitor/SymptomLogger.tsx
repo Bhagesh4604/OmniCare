@@ -34,7 +34,9 @@ const SymptomLogger: React.FC<SymptomLoggerProps> = ({
     const [error, setError] = useState('');
 
     const apiUrl = (path: string) => {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8086';
+        // Use env var if set, otherwise use current domain (for Azure) or localhost
+        const baseUrl = import.meta.env.VITE_API_BASE_URL ||
+            (window.location.hostname === 'localhost' ? 'http://localhost:8086' : window.location.origin);
         return `${baseUrl}${path}`;
     };
 
@@ -195,14 +197,14 @@ const SymptomLogger: React.FC<SymptomLoggerProps> = ({
                                     type="button"
                                     onClick={() => setFormData({ ...formData, severity })}
                                     className={`py-3 rounded-lg font-semibold transition-all ${formData.severity === severity
-                                            ? severity === 'mild'
-                                                ? 'bg-green-600 text-white'
-                                                : severity === 'moderate'
-                                                    ? 'bg-blue-600 text-white'
-                                                    : severity === 'severe'
-                                                        ? 'bg-yellow-600 text-white'
-                                                        : 'bg-red-600 text-white'
-                                            : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                                        ? severity === 'mild'
+                                            ? 'bg-green-600 text-white'
+                                            : severity === 'moderate'
+                                                ? 'bg-blue-600 text-white'
+                                                : severity === 'severe'
+                                                    ? 'bg-yellow-600 text-white'
+                                                    : 'bg-red-600 text-white'
+                                        : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
                                         }`}
                                 >
                                     {severity.charAt(0).toUpperCase() + severity.slice(1)}

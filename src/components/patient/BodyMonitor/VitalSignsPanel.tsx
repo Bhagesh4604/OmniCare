@@ -26,7 +26,9 @@ const VitalSignsPanel: React.FC<VitalSignsPanelProps> = ({ patientId }) => {
     const [loading, setLoading] = useState(true);
 
     const apiUrl = (path: string) => {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8086';
+        // Use env var if set, otherwise use current domain (for Azure) or localhost
+        const baseUrl = import.meta.env.VITE_API_BASE_URL ||
+            (window.location.hostname === 'localhost' ? 'http://localhost:8086' : window.location.origin);
         return `${baseUrl}${path}`;
     };
 
