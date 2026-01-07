@@ -20,6 +20,7 @@ import TelemedicineModule from './components/TelemedicineModule';
 import PatientDashboard from './components/patient/PatientDashboard';
 import BookAmbulance from './pages/patient/BookAmbulance';
 import TrackAmbulance from './pages/patient/TrackAmbulance';
+import BodyMonitorDashboard from './components/patient/BodyMonitor/BodyMonitorDashboard'; // Smart Body Monitor
 import AppointmentsView from './components/AppointmentsView';
 import Dashboard from './components/Dashboard';
 import NewSidebar from './components/NewSidebar';
@@ -264,6 +265,14 @@ function App() {
           element={
             <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
               <TrackAmbulance user={loggedInUser} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/body-monitor"
+          element={
+            <ProtectedRoute user={loggedInUser} allowedRoles={['patient']}>
+              <BodyMonitorDashboard patient={loggedInUser!} />
             </ProtectedRoute>
           }
         />

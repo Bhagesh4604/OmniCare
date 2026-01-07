@@ -125,6 +125,7 @@ app.use('/api/dashboard', require('./dashboard.cjs'));
 app.use('/api/patients', require('./patients.cjs'));
 app.use('/api/immunizations', require('./immunizations.cjs'));
 app.use('/api/medications', require('./medications.cjs'));
+app.use('/api/body-monitor', require('./body_monitor.cjs')); // Smart Body Monitor
 app.use('/api/portal', require('./portal.cjs'));
 app.use('/api/employees', require('./employees.cjs'));
 app.use('/api/pharmacy', require('./pharmacy.cjs'));
