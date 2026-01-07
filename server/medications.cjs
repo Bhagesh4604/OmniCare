@@ -146,7 +146,15 @@ router.post('/track', async (req, res) => {
         res.json({ success: true, message: 'Adherence recorded.' });
 
     } catch (error) {
-        console.error('Error tracking medication:', error);
+        console.error('❌ [MEDICATION TRACKER] Error tracking medication');
+        console.error('Request Data:', JSON.stringify({ patientId, prescriptionId, doseTime, status }, null, 2));
+        console.error('Error Details:', {
+            code: error.code,
+            errno: error.errno,
+            sqlMessage: error.sqlMessage,
+            sqlState: error.sqlState,
+            sql: error.sql
+        });
         res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 });

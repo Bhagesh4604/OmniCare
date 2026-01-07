@@ -299,7 +299,21 @@ router.post('/book-ambulance', upload.single('accidentImage'), async (req, res) 
     autoDispatchTrip(trip_id, { lat: lat, lon: lon }, req.wss);
 
   } catch (error) {
-    console.error("Database error booking ambulance:", error);
+    console.error('❌ [AMBULANCE BOOKING] Database error booking ambulance');
+    console.error('Request Data:', JSON.stringify({
+      patient_id: req.body.patient_id,
+      latitude: req.body.latitude,
+      longitude: req.body.longitude,
+      hasImage: !!req.file,
+      notes: req.body.notes
+    }, null, 2));
+    console.error('Error Details:', {
+      code: error.code,
+      errno: error.errno,
+      sqlMessage: error.sqlMessage,
+      sqlState: error.sqlState,
+      sql: error.sql
+    });
     res.status(500).json({ success: false, message: 'Failed to book ambulance.' });
   }
 });
