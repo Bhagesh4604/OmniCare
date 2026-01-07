@@ -1,5 +1,5 @@
 const { AzureOpenAI } = require("openai");
-const { executeQuery } = require('./db.cjs');
+const { executeQuery } = require('../db.cjs'); // Fixed: go up one directory from ai/ to server/
 
 // Initialize Azure OpenAI Client
 const client = new AzureOpenAI({
