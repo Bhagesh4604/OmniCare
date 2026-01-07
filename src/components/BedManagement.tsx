@@ -5,7 +5,20 @@ import { BedDouble, UserPlus, X, Wind, Layout, Users } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import apiUrl from '@/config/api';
 
-const wsUrl = import.meta.env.VITE_API_BASE ? new URL(import.meta.env.VITE_API_BASE).hostname : 'localhost:8080';
+// Safely extract hostname from VITE_API_BASE for WebSocket connection
+const getWsUrl = () => {
+    try {
+        if (import.meta.env.VITE_API_BASE) {
+            const url = new URL(import.meta.env.VITE_API_BASE);
+            return url.hostname + (url.port ? `:${url.port}` : '');
+        }
+    } catch (error) {
+        console.warn('Invalid VITE_API_BASE for WebSocket:', error);
+    }
+    return 'localhost:8080';
+};
+
+const wsUrl = getWsUrl();
 
 const Modal = ({ children, onClose }) => (
     <AnimatePresence>

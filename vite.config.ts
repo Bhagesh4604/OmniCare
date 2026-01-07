@@ -30,8 +30,10 @@ export default defineConfig(({ mode }) => {
           ]
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB to handle 3D models
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,glb}'],
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit for precaching
+          // Exclude large GLB files from precaching - they'll be cached on-demand
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}'],
+          globIgnores: ['**/*.glb', '**/HumanAnatomy.glb', '**/RiggedFigure.glb'],
           runtimeCaching: [
             {
               urlPattern: ({ url }) => url.pathname.startsWith('/api'),
@@ -43,6 +45,21 @@ export default defineConfig(({ mode }) => {
                   maxAgeSeconds: 60 * 60 * 24
                 },
                 networkTimeoutSeconds: 5
+              }
+            },
+            {
+              // Runtime caching for 3D models (GLB files)
+              urlPattern: ({ url }) => url.pathname.endsWith('.glb'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: '3d-models-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
               }
             }
           ]
