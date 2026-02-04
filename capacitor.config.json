@@ -1,0 +1,12 @@
+{
+  "appId": "com.hms.app",
+  "appName": "Shree Medicare HMS",
+  "webDir": "dist",
+  "logging": true,
+  "server": {
+    "cleartext": true,
+    "url": "https://shreemedicare-backend.onrender.com"
+    // For Android emulators, you might need to use "http://10.0.2.2:8080"
+    // For physical devices, ensure your device and computer are on the same network.
+  }
+}

@@ -1,0 +1,97 @@
+**Technical Details (More Detailed):**
+
+**Languages Used:**
+*   **Frontend:**
+    *   JavaScript (with React and Vite)
+    *   TypeScript
+    *   HTML
+    *   CSS (with Tailwind CSS)
+*   **Backend:**
+    *   Node.js (with Express.js)
+*   **Database:**
+    *   MySQL
+
+**Approaches and Algorithms:**
+
+*   **Frontend:**
+    *   **Component-Based Architecture:** The frontend is built using React, which follows a component-based architecture. This makes the code modular, reusable, and easier to maintain. Each part of the UI is a component, and components can be composed to create more complex UIs.
+    *   **State Management:** The state is managed using React hooks (`useState`, `useEffect`, etc.). For more complex state management, a state management library like Redux or Zustand could be used in the future.
+    *   **Responsive Design:** The app uses Tailwind CSS, a utility-first CSS framework, to create a responsive design that works on different screen sizes. Media queries are used to apply different styles for different screen sizes.
+    *   **Declarative UI:** The UI is described declaratively using JSX, which makes the code more readable and easier to reason about. Instead of telling the computer how to do something, we tell it what we want to see.
+*   **Backend:**
+    *   **RESTful API:** The backend provides a RESTful API for the frontend to interact with. The API uses standard HTTP methods (GET, POST, PUT, DELETE) and status codes.
+    *   **MVC (Model-View-Controller) Pattern:** The backend code is structured following the MVC pattern, which separates the business logic from the presentation logic.
+        *   **Model:** Represents the data and the business logic.
+        *   **View:** Represents the UI.
+        *   **Controller:** Handles the user input and interacts with the model and the view.
+    *   **Asynchronous Programming:** The backend uses asynchronous programming (with `async/await` and callbacks) to handle I/O operations without blocking the main thread. This is important for performance and scalability.
+*   **Database:**
+    *   **Relational Database:** The app uses MySQL, a relational database, to store the data. The data is organized into tables with rows and columns.
+    *   **SQL Queries:** The backend uses SQL queries to interact with the database. The queries are executed using the `mysql` library.
+
+**Algorithms for Main Features:**
+
+*   **Patient Registration:**
+    1.  **Frontend:**
+        *   The user fills out the registration form with their first name, last name, email, and password.
+        *   When the user submits the form, the frontend sends a `POST` request to the `/api/auth/patient/register` endpoint with the user's data in the request body.
+    2.  **Backend:**
+        *   The backend receives the request and extracts the user's data from the request body.
+        *   The backend validates the email format using the `deep-email-validator` library. This library checks for a valid email format, disposable email addresses, and whether the domain has a valid MX record.
+        *   If the email is invalid, the backend returns a 400 error with a message "Invalid email format.".
+        *   If the email is valid, the backend generates a unique `patientId` (e.g., "PAT" + a random 4-digit number).
+        *   The backend inserts a new record into the `patients` table with the user's first name, last name, email, and a default status of "active".
+        *   The backend hashes the user's password using `bcryptjs` with a salt of 10 rounds. This makes it very difficult to crack the password.
+        *   The backend generates a unique verification token using `crypto.randomBytes(20).toString('hex')`.
+        *   The backend inserts a new record into the `patients_auth` table with the new patient's ID, email, hashed password, verification token, and `isVerified` set to `false`.
+        *   The backend logs the verification link to the console for testing purposes. In a production environment, this would be sent to the user's email.
+        *   The backend returns a 200 success message to the frontend with a message "Patient registered successfully! A verification link has been logged to the server console.".
+
+*   **Patient Login:**
+    1.  **Frontend:**
+        *   The user enters their email and password in the login form.
+        *   When the user submits the form, the frontend sends a `POST` request to the `/api/auth/patient/login` endpoint with the user's credentials in the request body.
+    2.  **Backend:**
+        *   The backend receives the request and extracts the user's credentials from the request body.
+        *   The backend queries the `patients_auth` table for a user with the given email.
+        *   If no user is found, the backend returns a 401 error with a message "Invalid credentials.".
+        *   If a user is found, the backend checks if the `isVerified` flag is `true`.
+        *   If the email is not verified, the backend returns a 401 error with a message "Please verify your email before logging in.".
+        *   If the email is verified, the backend compares the user's password with the hashed password in the database using `bcryptjs.compare()`.
+        *   If the passwords do not match, the backend returns a 401 error with a message "Invalid credentials.".
+        *   If the passwords match, the backend queries the `patients` table for the user's details using the `patientId` from the `patients_auth` table.
+        *   The backend returns a 200 success message with the user's data to the frontend.
+
+*   **Forgot Password:**
+    1.  **Frontend:**
+        *   The user enters their email in the "Forgot Password" form.
+        *   When the user submits the form, the frontend sends a `POST` request to the `/api/auth/patient/forgot-password` endpoint with the user's email in the request body.
+    2.  **Backend:**
+        *   The backend receives the request and extracts the user's email from the request body.
+        *   The backend queries the `patients_auth` table for a user with the given email.
+        *   If no user is found, the backend returns a 400 error with a message "No user with that email address exists.".
+        *   If a user is found, the backend generates a unique password reset token using `crypto.randomBytes(20).toString('hex')`.
+        *   The backend inserts a new record into the `password_resets` table with the user's email, the reset token, and an expiry date of 1 hour from the current time.
+        *   The backend logs the password reset link to the console for testing purposes. In a production environment, this would be sent to the user's email.
+        *   The backend returns a 200 success message to the frontend with a message "A password reset link has been logged to the server console.".
+
+*   **Reset Password:**
+    1.  **Frontend:**
+        *   The user clicks on the password reset link in the email.
+        *   The frontend opens the "Reset Password" page and extracts the reset token from the URL.
+        *   The user enters their new password in the "Reset Password" form.
+        *   When the user submits the form, the frontend sends a `POST` request to the `/api/auth/patient/reset-password` endpoint with the reset token and the new password in the request body.
+    2.  **Backend:**
+        *   The backend receives the request and extracts the reset token and the new password from the request body.
+        *   The backend queries the `password_resets` table for a record with the given token and checks if the token has expired.
+        *   If no record is found or the token has expired, the backend returns a 400 error with a message "Password reset token is invalid or has expired.".
+        *   If a valid record is found, the backend hashes the new password using `bcryptjs` with a salt of 10 rounds.
+        *   The backend updates the user's password in the `patients_auth` table with the new hashed password.
+        *   The backend deletes the record from the `password_resets` table.
+        *   The backend returns a 200 success message to the frontend with a message "Password has been reset successfully!".
+
+
+
+
+        User wants instructions. I'll give them the commands again, clearly and concisely: rd /s /q .git, git init, git add ., and git commit -m
+  "Initial commit", and I'll ask for the output of each. I'm sending these instructions now.

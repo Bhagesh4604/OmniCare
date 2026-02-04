@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1084506183169",
+    "project_id": "shreemedicare-f9c9a",
+    "storage_bucket": "shreemedicare-f9c9a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084506183169:android:6ebb699e3f128a1f355200",
+        "android_client_info": {
+          "package_name": "com.hms.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJTxgvtWUaUe1fSoI4Tv6_mY-HynsHaYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
