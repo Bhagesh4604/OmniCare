@@ -1,4 +1,7 @@
--- Clean up existing table if it has the wrong schema
+-- Disable Foreign Key Checks temporarily to allow dropping the table
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Clean up existing table
 DROP TABLE IF EXISTS body_parts;
 
 -- Create body_parts table with correct schema
@@ -49,3 +52,6 @@ INSERT INTO body_parts (name, display_name, category, related_specialties) VALUE
 ('foot_right', 'Right Foot', 'Legs', '["Orthopedics", "Podiatry"]'),
 ('skin', 'Skin (General)', 'Systemic', '["Dermatology"]'),
 ('whole_body', 'Whole Body (General)', 'Systemic', '["General Medicine"]');
+
+-- Re-enable Foreign Key Checks
+SET FOREIGN_KEY_CHECKS = 1;

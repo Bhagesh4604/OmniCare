@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require("crypto");
 
 const endpoint = "https://api.cognitive.microsofttranslator.com";
 const apiKey = process.env.AZURE_TRANSLATOR_KEY;
@@ -21,7 +21,7 @@ async function translateText(text, targetLanguage) {
                 "Ocp-Apim-Subscription-Key": apiKey,
                 "Ocp-Apim-Subscription-Region": region,
                 "Content-Type": "application/json",
-                "X-ClientTraceId": uuidv4().toString()
+                "X-ClientTraceId": crypto.randomUUID().toString()
             },
             body: JSON.stringify([{ "text": text }])
         });
