@@ -1,5 +1,5 @@
 const { BlobServiceClient } = require("@azure/storage-blob");
-const { v1: uuidv1 } = require("uuid");
+const crypto = require("crypto");
 const path = require('path');
 
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
@@ -20,7 +20,7 @@ async function uploadToBlob(buffer, originalName) {
     }
 
     const extension = path.extname(originalName);
-    const blobName = uuidv1() + extension;
+    const blobName = crypto.randomUUID() + extension;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
     await blockBlobClient.uploadData(buffer);
