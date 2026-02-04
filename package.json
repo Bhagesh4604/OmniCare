@@ -70,7 +70,6 @@
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.160.0",
     "twilio": "^5.11.1",
-    "uuid": "^8.3.2",
     "ws": "^8.18.3"
   },
   "devDependencies": {
